@@ -1,0 +1,31 @@
+.editorPanel {
+  flex: 1;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.editor {
+  height: 100%;
+}
+
+.empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  gap: 8px;
+}
+
+.emptyTitle {
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--text-secondary);
+  letter-spacing: 2px;
+}
+
+.emptyDesc {
+  font-size: 13px;
+  color: var(--text-muted);
+}

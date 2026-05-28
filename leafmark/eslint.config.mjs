@@ -24,6 +24,9 @@ export default defineConfig(
       'react-refresh': eslintPluginReactRefresh
     },
     rules: {
+      // 关闭显式函数返回类型规则
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      // 保留其它规则
       ...eslintPluginReactHooks.configs.recommended.rules,
       ...eslintPluginReactRefresh.configs.vite.rules
     }

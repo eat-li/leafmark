@@ -1,0 +1,127 @@
+.preview {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  background: var(--bg-primary);
+  min-width: 0;
+  border-left: 1px solid var(--border-color);
+}
+
+.content {
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6 {
+  margin: 1.2em 0 0.6em;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.content h1 { font-size: 2em; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; }
+.content h2 { font-size: 1.5em; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; }
+.content h3 { font-size: 1.25em; }
+
+.content p {
+  margin: 0.8em 0;
+}
+
+.content a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+.content a:hover {
+  text-decoration: underline;
+}
+
+.content code {
+  background: var(--bg-tertiary);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.9em;
+}
+
+.content pre {
+  margin: 1em 0;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+}
+
+.content pre code {
+  display: block;
+  padding: 16px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  font-size: 0.88em;
+  line-height: 1.5;
+}
+
+.content blockquote {
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  border-left: 4px solid var(--accent-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.content ul,
+.content ol {
+  margin: 0.8em 0;
+  padding-left: 2em;
+}
+
+.content li {
+  margin: 0.3em 0;
+}
+
+.content img {
+  max-width: 100%;
+  border-radius: var(--radius-sm);
+}
+
+.content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+
+.content th,
+.content td {
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.content th {
+  background: var(--bg-secondary);
+  font-weight: 600;
+}
+
+.content hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 2em 0;
+}
+
+.content input[type="checkbox"] {
+  margin-right: 6px;
+}
+
+.empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  background: var(--bg-primary);
+  border-left: 1px solid var(--border-color);
+}

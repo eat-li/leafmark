@@ -1,0 +1,106 @@
+.node {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-primary);
+  gap: 4px;
+  position: relative;
+  padding-right: 8px;
+}
+
+.node:hover {
+  background: var(--bg-hover);
+}
+
+.node.active {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+.node.active .icon {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.renameInput {
+  flex: 1;
+  padding: 2px 4px;
+  border: 1px solid var(--accent-color);
+  border-radius: 2px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  outline: none;
+  font-size: 13px;
+}
+
+.contextMenu {
+  position: absolute;
+  right: 8px;
+  top: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  z-index: 50;
+  min-width: 120px;
+  padding: 4px 0;
+}
+
+.contextMenu button {
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  font-size: 13px;
+}
+
+.contextMenu button:hover {
+  background: var(--bg-hover);
+}
+
+.menuDivider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 4px 0;
+}
+
+.danger {
+  color: var(--danger-color) !important;
+}
+
+.inputRow {
+  padding-right: 8px;
+}
+
+.inlineInput {
+  width: 100%;
+  padding: 3px 6px;
+  border: 1px solid var(--accent-color);
+  border-radius: 2px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  outline: none;
+  font-size: 12px;
+}
