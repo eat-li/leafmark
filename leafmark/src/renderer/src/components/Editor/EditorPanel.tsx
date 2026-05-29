@@ -270,6 +270,28 @@ export default function EditorPanel({
     isInternalUpdate.current = false
   }, [])
 
+  // 粘贴后光标跳到下一行
+  const moveCursorToNextLine = useCallback(() => {
+    const view = viewRef.current
+    if (!view) return
+    const pos = view.state.selection.main.head
+    const line = view.state.doc.lineAt(pos)
+    isInternalUpdate.current = true
+    if (line.to < view.state.doc.length) {
+      // 当前行后面还有内容，跳到下一行行首
+      view.dispatch({
+        selection: { anchor: line.to + 1 }
+      })
+    } else {
+      // 已在文档末尾，先添加一个新行，再将光标移过去
+      view.dispatch({
+        changes: { from: view.state.doc.length, insert: '\n' },
+        selection: { anchor: view.state.doc.length + 1 }
+      })
+    }
+    isInternalUpdate.current = false
+  }, [])
+
   useEffect(() => {
     onEditorReady?.(insertFormat)
   }, [insertFormat, onEditorReady])
@@ -314,9 +336,23 @@ export default function EditorPanel({
         const workspaceDir = useNoteStore.getState().workspaceDir
         if (!filePath || !workspaceDir) return false
         const text = event.clipboardData?.getData('text/plain')
-        if (text) return false
+        if (text) {
+          // 文本粘贴：手动插入文本并移动光标到下一行，不依赖 CodeMirror 默认行为
+          event.preventDefault()
+          const view = viewRef.current
+          if (!view) return true
+          const { from, to } = view.state.selection.main
+          isInternalUpdate.current = true
+          view.dispatch({
+            changes: { from, to, insert: text },
+            selection: { anchor: from + text.length }
+          })
+          isInternalUpdate.current = false
+          moveCursorToNextLine()
+          return true
+        }
         event.preventDefault()
-        handleImagePaste(workspaceDir, insertAtCursor)
+        handleImagePaste(workspaceDir, insertAtCursor, moveCursorToNextLine)
         return true
       }
     })
@@ -388,7 +424,7 @@ export default function EditorPanel({
       view.destroy()
       viewRef.current = null
     }
-  }, [activeTabPath, insertAtCursor, isDark, onRegisterScrollToLine]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeTabPath, insertAtCursor, isDark, onRegisterScrollToLine, moveCursorToNextLine]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 动态更新字号
   useEffect(() => {
@@ -463,12 +499,17 @@ export default function EditorPanel({
   )
 }
 
-async function handleImagePaste(workspaceDir: string, insertAtCursor: (text: string) => void) {
+async function handleImagePaste(
+  workspaceDir: string,
+  insertAtCursor: (text: string) => void,
+  moveCursorToNextLine: () => void
+) {
   try {
     const imageData = await clipboard.readImage()
     if (!imageData) return
     const relativePath = await clipboard.saveImage(imageData, workspaceDir)
     insertAtCursor(`![图片](${relativePath})`)
+    moveCursorToNextLine()
   } catch {
     // 出错则不干预
   }
