@@ -1,16 +1,26 @@
+import { useMemo } from 'react'
 import { useNoteStore } from '../../store/noteStore'
 import { IconClose } from '../Icons'
 import styles from './TabBar.module.css'
 
 export default function TabBar() {
-  const { openTabs, activeTabPath, setActiveTab, closeTab } = useNoteStore()
+  const openTabs = useNoteStore((s) => s.openTabs)
+  const activeTabPath = useNoteStore((s) => s.activeTabPath)
+  const setActiveTab = useNoteStore((s) => s.setActiveTab)
+  const closeTab = useNoteStore((s) => s.closeTab)
 
-  if (openTabs.length === 0) return null
+  // 仅提取展示所需字段，避免 content 变化导致 memo 失效
+  const tabDisplayData = useMemo(
+    () => openTabs.map((t) => ({ path: t.path, name: t.name, modified: t.modified })),
+    [openTabs]
+  )
+
+  if (tabDisplayData.length === 0) return null
 
   return (
     <div className={styles.tabBar}>
       <div className={styles.tabs}>
-        {openTabs.map((tab) => (
+        {tabDisplayData.map((tab) => (
           <div
             key={tab.path}
             className={`${styles.tab} ${tab.path === activeTabPath ? styles.active : ''}`}

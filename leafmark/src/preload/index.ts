@@ -14,6 +14,7 @@ const electronAPI = {
     ipcRenderer.invoke('fs:renamePath', oldPath, newPath),
   pathExists: (targetPath: string) => ipcRenderer.invoke('fs:pathExists', targetPath),
   getDocumentsDir: () => ipcRenderer.invoke('fs:getDocumentsDir'),
+  readImageAsDataUrl: (filePath: string) => ipcRenderer.invoke('fs:readImageAsDataUrl', filePath),
 
   // 窗口操作
   minimizeWindow: () => ipcRenderer.invoke('win:minimize'),
@@ -23,7 +24,26 @@ const electronAPI = {
 
   // 对话框
   showOpenDialog: (options: Electron.OpenDialogOptions) =>
-    ipcRenderer.invoke('dialog:open', options)
+    ipcRenderer.invoke('dialog:open', options),
+
+  // 剪贴板
+  readClipboardImage: () => ipcRenderer.invoke('clipboard:readImage'),
+  saveClipboardImage: (base64: string, dirPath: string) =>
+    ipcRenderer.invoke('clipboard:saveImage', base64, dirPath),
+
+  // 应用设置
+  setAutoLaunch: (enabled: boolean) => ipcRenderer.invoke('app:setAutoLaunch', enabled),
+  getAutoLaunch: () => ipcRenderer.invoke('app:getAutoLaunch'),
+  setCloseToTray: (enabled: boolean) => ipcRenderer.invoke('app:setCloseToTray', enabled),
+  getCloseToTray: () => ipcRenderer.invoke('app:getCloseToTray'),
+  quitApp: () => ipcRenderer.invoke('app:quitApp'),
+
+  // 系统操作
+  openInSystem: (targetPath: string) => ipcRenderer.invoke('shell:openPath', targetPath),
+
+  // 导出
+  exportPDF: (html: string, defaultName: string) => ipcRenderer.invoke('export:pdf', html, defaultName),
+  exportHTML: (html: string, defaultName: string) => ipcRenderer.invoke('export:html', html, defaultName)
 }
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI)

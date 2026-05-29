@@ -1,20 +1,45 @@
+import { useEffect, useState } from 'react'
 import { useNoteStore, type Theme } from '../../store/noteStore'
-import { dialog } from '../../api/electron'
+import { dialog, appSettings } from '../../api/electron'
 import styles from './SettingsPanel.module.css'
 
 export default function SettingsPanel() {
-  const {
-    showSettings,
-    setShowSettings,
-    theme,
-    setTheme,
-    fontSize,
-    setFontSize,
-    workspaceDir,
-    setWorkspaceDirAndRefresh
-  } = useNoteStore()
+  const showSettings = useNoteStore((s) => s.showSettings)
 
   if (!showSettings) return null
+  return <SettingsPanelContent />
+}
+
+function SettingsPanelContent() {
+  const setShowSettings = useNoteStore((s) => s.setShowSettings)
+  const theme = useNoteStore((s) => s.theme)
+  const setTheme = useNoteStore((s) => s.setTheme)
+  const fontSize = useNoteStore((s) => s.fontSize)
+  const setFontSize = useNoteStore((s) => s.setFontSize)
+  const workspaceDir = useNoteStore((s) => s.workspaceDir)
+  const setWorkspaceDirAndRefresh = useNoteStore((s) => s.setWorkspaceDirAndRefresh)
+  const autoSave = useNoteStore((s) => s.autoSave)
+  const setAutoSave = useNoteStore((s) => s.setAutoSave)
+  const autoSaveInterval = useNoteStore((s) => s.autoSaveInterval)
+  const setAutoSaveInterval = useNoteStore((s) => s.setAutoSaveInterval)
+  const closeToTray = useNoteStore((s) => s.closeToTray)
+  const setCloseToTray = useNoteStore((s) => s.setCloseToTray)
+
+  const [autoLaunch, setAutoLaunch] = useState(false)
+
+  useEffect(() => {
+    appSettings.getAutoLaunch().then(setAutoLaunch)
+  }, [])
+
+  const handleAutoLaunch = async (enabled: boolean) => {
+    await appSettings.setAutoLaunch(enabled)
+    setAutoLaunch(enabled)
+  }
+
+  const handleCloseToTray = async (enabled: boolean) => {
+    await appSettings.setCloseToTray(enabled)
+    setCloseToTray(enabled)
+  }
 
   const handleChangeWorkspace = async () => {
     const paths = await dialog.open({
@@ -65,6 +90,77 @@ export default function SettingsPanel() {
                 onChange={(e) => setFontSize(Number(e.target.value))}
                 className={styles.range}
               />
+            </div>
+          </div>
+
+          <div className={styles.section}>
+            <h3 className={styles.sectionTitle}>行为</h3>
+
+            <div className={styles.settingRow}>
+              <div className={styles.settingInfo}>
+                <span className={styles.settingName}>开机自启</span>
+                <span className={styles.settingDesc}>系统启动时自动打开 LeafMark</span>
+              </div>
+              <label className={styles.toggle}>
+                <input
+                  type="checkbox"
+                  checked={autoLaunch}
+                  onChange={(e) => handleAutoLaunch(e.target.checked)}
+                />
+                <span className={styles.slider} />
+              </label>
+            </div>
+
+            <div className={styles.settingRow}>
+              <div className={styles.settingInfo}>
+                <span className={styles.settingName}>自动保存</span>
+                <span className={styles.settingDesc}>定时保存已修改的笔记</span>
+              </div>
+              <label className={styles.toggle}>
+                <input
+                  type="checkbox"
+                  checked={autoSave}
+                  onChange={(e) => setAutoSave(e.target.checked)}
+                />
+                <span className={styles.slider} />
+              </label>
+            </div>
+
+            {autoSave && (
+              <div className={styles.intervalRow}>
+                <label className={styles.label}>保存间隔</label>
+                <div className={styles.intervalButtons}>
+                  {[
+                    { value: 15, label: '15 秒' },
+                    { value: 30, label: '30 秒' },
+                    { value: 60, label: '1 分钟' },
+                    { value: 120, label: '2 分钟' }
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      className={`${styles.intervalBtn} ${autoSaveInterval === opt.value ? styles.active : ''}`}
+                      onClick={() => setAutoSaveInterval(opt.value)}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className={styles.settingRow}>
+              <div className={styles.settingInfo}>
+                <span className={styles.settingName}>关闭到托盘</span>
+                <span className={styles.settingDesc}>关闭窗口时最小化到系统托盘而非退出</span>
+              </div>
+              <label className={styles.toggle}>
+                <input
+                  type="checkbox"
+                  checked={closeToTray}
+                  onChange={(e) => handleCloseToTray(e.target.checked)}
+                />
+                <span className={styles.slider} />
+              </label>
             </div>
           </div>
 

@@ -9,17 +9,19 @@
 
 .dragRegion {
   flex: 1;
-  padding-left: 12px;
+  padding-left: 14px;
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .title {
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 1px;
+  color: var(--accent-color);
+  letter-spacing: 1.5px;
   text-transform: uppercase;
+  opacity: 0.9;
 }
 
 .controls {
@@ -37,6 +39,7 @@
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
+  transition: all var(--transition-fast);
 }
 
 .btn:hover {

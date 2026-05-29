@@ -20,6 +20,22 @@ export interface OpenTab {
 export type ViewMode = 'edit' | 'split' | 'preview'
 export type Theme = 'light' | 'dark' | 'system'
 
+// 标签颜色调色板（低饱和度有机风格）
+export const TAG_PALETTE = [
+  '#b85c5c',
+  '#c4885c',
+  '#b8a44c',
+  '#6b8f6b',
+  '#5c8f8f',
+  '#5c7fb8',
+  '#8b6b9e',
+  '#9e6b7b',
+  '#7b8f5c',
+  '#8b7355',
+  '#6b7b8f',
+  '#a08060'
+]
+
 interface NoteState {
   workspaceDir: string
   fileTree: FileEntry[]
@@ -32,6 +48,15 @@ interface NoteState {
   sidebarFilter: string
   showSearch: boolean
   showSettings: boolean
+  showOutline: boolean
+  autoSave: boolean
+  autoSaveInterval: number
+  closeToTray: boolean
+  syncScroll: boolean
+  typewriterMode: boolean
+  tags: Record<string, string[]>
+  tagColors: Record<string, string>
+  tagFilter: string
 
   // actions
   setWorkspaceDir: (dir: string) => void
@@ -56,6 +81,15 @@ interface NoteState {
   setSidebarFilter: (filter: string) => void
   setShowSearch: (show: boolean) => void
   setShowSettings: (show: boolean) => void
+  setShowOutline: (show: boolean) => void
+  setAutoSave: (enabled: boolean) => void
+  setAutoSaveInterval: (seconds: number) => void
+  setCloseToTray: (enabled: boolean) => void
+  toggleSyncScroll: () => void
+  toggleTypewriterMode: () => void
+  addTag: (filePath: string, tagName: string) => void
+  removeTag: (filePath: string, tagName: string) => void
+  setTagFilter: (tag: string) => void
   setWorkspaceDirAndRefresh: (dir: string) => Promise<void>
 }
 
@@ -73,12 +107,22 @@ export const useNoteStore = create<NoteState>()(
       sidebarFilter: '',
       showSearch: false,
       showSettings: false,
+      showOutline: false,
+      autoSave: false,
+      autoSaveInterval: 30,
+      closeToTray: false,
+      syncScroll: true,
+      typewriterMode: false,
+      tags: {},
+      tagColors: {},
+      tagFilter: '',
 
       setWorkspaceDir: (dir) => set({ workspaceDir: dir }),
 
       initWorkspace: async () => {
         const dir = await fs.getDocumentsDir()
         set({ workspaceDir: dir })
+        await fs.createFolder(`${dir}/assets`)
         const tree = await fs.readDirTree(dir)
         set({ fileTree: tree })
       },
@@ -135,11 +179,8 @@ export const useNoteStore = create<NoteState>()(
 
       saveAllFiles: async () => {
         const { openTabs } = get()
-        for (const tab of openTabs) {
-          if (tab.modified) {
-            await fs.writeFile(tab.path, tab.content)
-          }
-        }
+        const modifiedTabs = openTabs.filter((t) => t.modified)
+        await Promise.all(modifiedTabs.map((t) => fs.writeFile(t.path, t.content)))
         set({
           openTabs: openTabs.map((t) => ({ ...t, originalContent: t.content, modified: false }))
         })
@@ -174,13 +215,18 @@ export const useNoteStore = create<NoteState>()(
 
       deleteItem: async (path) => {
         await fs.deletePath(path)
-        const { openTabs, activeTabPath } = get()
+        const { openTabs, activeTabPath, tags } = get()
         const newTabs = openTabs.filter((t) => !t.path.startsWith(path))
         let newActive = activeTabPath
         if (activeTabPath.startsWith(path)) {
           newActive = newTabs[0]?.path || ''
         }
-        set({ openTabs: newTabs, activeTabPath: newActive })
+        // 清理标签
+        const newTags = { ...tags }
+        for (const key of Object.keys(newTags)) {
+          if (key.startsWith(path)) delete newTags[key]
+        }
+        set({ openTabs: newTabs, activeTabPath: newActive, tags: newTags })
         await get().refreshFileTree()
       },
 
@@ -188,7 +234,15 @@ export const useNoteStore = create<NoteState>()(
         const dir = oldPath.substring(0, oldPath.lastIndexOf('/'))
         const newPath = `${dir}/${newName}`
         await fs.renamePath(oldPath, newPath)
-        const { openTabs, activeTabPath } = get()
+        const { openTabs, activeTabPath, tags } = get()
+        // 迁移标签到新路径
+        const newTags = { ...tags }
+        for (const [key, value] of Object.entries(newTags)) {
+          if (key.startsWith(oldPath)) {
+            delete newTags[key]
+            newTags[key.replace(oldPath, newPath)] = value
+          }
+        }
         set({
           openTabs: openTabs.map((t) =>
             t.path.startsWith(oldPath)
@@ -197,7 +251,8 @@ export const useNoteStore = create<NoteState>()(
           ),
           activeTabPath: activeTabPath.startsWith(oldPath)
             ? activeTabPath.replace(oldPath, newPath)
-            : activeTabPath
+            : activeTabPath,
+          tags: newTags
         })
         await get().refreshFileTree()
       },
@@ -240,6 +295,50 @@ export const useNoteStore = create<NoteState>()(
 
       setShowSettings: (show) => set({ showSettings: show }),
 
+      setShowOutline: (show) => set({ showOutline: show }),
+
+      setAutoSave: (enabled) => set({ autoSave: enabled }),
+
+      setAutoSaveInterval: (seconds) => set({ autoSaveInterval: seconds }),
+
+      setCloseToTray: (enabled) => set({ closeToTray: enabled }),
+
+      toggleSyncScroll: () => set((s) => ({ syncScroll: !s.syncScroll })),
+
+      toggleTypewriterMode: () => set((s) => ({ typewriterMode: !s.typewriterMode })),
+
+      addTag: (filePath, tagName) => {
+        const { tags, tagColors } = get()
+        const name = tagName.trim()
+        if (!name) return
+        const fileTags = tags[filePath] || []
+        if (fileTags.includes(name)) return
+        const newColors = { ...tagColors }
+        if (!newColors[name]) {
+          const usedCount = Object.keys(newColors).length
+          newColors[name] = TAG_PALETTE[usedCount % TAG_PALETTE.length]
+        }
+        set({
+          tags: { ...tags, [filePath]: [...fileTags, name] },
+          tagColors: newColors
+        })
+      },
+
+      removeTag: (filePath, tagName) => {
+        const { tags } = get()
+        const fileTags = tags[filePath] || []
+        const newFileTags = fileTags.filter((t) => t !== tagName)
+        const newTags = { ...tags }
+        if (newFileTags.length > 0) {
+          newTags[filePath] = newFileTags
+        } else {
+          delete newTags[filePath]
+        }
+        set({ tags: newTags })
+      },
+
+      setTagFilter: (tag) => set((s) => ({ tagFilter: s.tagFilter === tag ? '' : tag })),
+
       setWorkspaceDirAndRefresh: async (dir) => {
         set({ workspaceDir: dir })
         const tree = await fs.readDirTree(dir)
@@ -253,7 +352,14 @@ export const useNoteStore = create<NoteState>()(
         fontSize: state.fontSize,
         viewMode: state.viewMode,
         sidebarVisible: state.sidebarVisible,
-        workspaceDir: state.workspaceDir
+        workspaceDir: state.workspaceDir,
+        autoSave: state.autoSave,
+        autoSaveInterval: state.autoSaveInterval,
+        closeToTray: state.closeToTray,
+        syncScroll: state.syncScroll,
+        typewriterMode: state.typewriterMode,
+        tags: state.tags,
+        tagColors: state.tagColors
       })
     }
   )

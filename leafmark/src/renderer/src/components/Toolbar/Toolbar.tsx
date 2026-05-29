@@ -1,4 +1,7 @@
+import { useCallback } from 'react'
+import MarkdownIt from 'markdown-it'
 import { useNoteStore } from '../../store/noteStore'
+import { exportFile } from '../../api/electron'
 import {
   IconBold,
   IconItalic,
@@ -17,9 +20,52 @@ import {
   IconPreview,
   IconSearch,
   IconTheme,
-  IconSettings
+  IconSettings,
+  IconSyncScroll,
+  IconTypewriter,
+  IconExport,
+  IconOutline
 } from '../Icons'
 import styles from './Toolbar.module.css'
+
+const md = new MarkdownIt({ html: true, linkify: true, typographer: true })
+
+function buildExportHTML(title: string, body: string): string {
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${title}</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif; max-width: 760px; margin: 0 auto; padding: 32px; line-height: 1.85; color: #3a352e; font-size: 15px; }
+  h1, h2, h3, h4, h5, h6 { margin: 1.6em 0 0.6em; font-weight: 700; line-height: 1.3; }
+  h1 { font-size: 2em; padding-bottom: 0.35em; border-bottom: 2px solid #bf7556; color: #bf7556; }
+  h2 { font-size: 1.5em; padding-bottom: 0.3em; border-bottom: 1px solid #ddd5ca; }
+  h3 { font-size: 1.25em; }
+  p { margin: 0.9em 0; }
+  a { color: #bf7556; text-decoration: none; }
+  code { background: #ebe4da; padding: 2px 7px; border-radius: 3px; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.88em; color: #bf7556; border: 1px solid #e8e1d8; }
+  pre { margin: 1.2em 0; border-radius: 8px; overflow-x: auto; border: 1px solid #ddd5ca; }
+  pre code { display: block; padding: 18px 20px; background: #ebe4da; color: #3a352e; border: none; font-size: 0.87em; line-height: 1.6; }
+  blockquote { margin: 1em 0; padding: 0.6em 1.2em; border-left: 3px solid #bf7556; background: rgba(191,117,86,0.06); color: #736b5f; border-radius: 0 5px 5px 0; }
+  ul, ol { margin: 0.9em 0; padding-left: 1.8em; }
+  li { margin: 0.35em 0; }
+  img { max-width: 100%; border-radius: 8px; margin: 0.5em 0; }
+  table { width: 100%; border-collapse: collapse; margin: 1.2em 0; font-size: 0.95em; }
+  th, td { border: 1px solid #ddd5ca; padding: 8px 14px; text-align: left; }
+  th { background: #f3ede5; font-weight: 600; }
+  hr { border: none; height: 1px; background: linear-gradient(to right, transparent, #ddd5ca, transparent); margin: 2.5em 0; }
+  input[type="checkbox"] { margin-right: 6px; }
+  .katex-block { margin: 1em 0; text-align: center; overflow-x: auto; }
+  @media print { body { padding: 0; } }
+</style>
+</head>
+<body>
+${body}
+</body>
+</html>`
+}
 
 interface FormatAction {
   icon: React.ReactNode
@@ -31,17 +77,82 @@ interface FormatAction {
 }
 
 const formatActions: FormatAction[] = [
-  { icon: <IconBold size={14} />, title: '粗体', prefix: '**', suffix: '**', placeholder: '粗体文本' },
-  { icon: <IconItalic size={14} />, title: '斜体', prefix: '*', suffix: '*', placeholder: '斜体文本' },
-  { icon: <IconHeading size={14} />, title: '标题', prefix: '## ', suffix: '', placeholder: '标题', lineStart: true },
-  { icon: <IconQuote size={14} />, title: '引用', prefix: '> ', suffix: '', placeholder: '引用文本', lineStart: true },
+  {
+    icon: <IconBold size={14} />,
+    title: '粗体',
+    prefix: '**',
+    suffix: '**',
+    placeholder: '粗体文本'
+  },
+  {
+    icon: <IconItalic size={14} />,
+    title: '斜体',
+    prefix: '*',
+    suffix: '*',
+    placeholder: '斜体文本'
+  },
+  {
+    icon: <IconHeading size={14} />,
+    title: '标题',
+    prefix: '## ',
+    suffix: '',
+    placeholder: '标题',
+    lineStart: true
+  },
+  {
+    icon: <IconQuote size={14} />,
+    title: '引用',
+    prefix: '> ',
+    suffix: '',
+    placeholder: '引用文本',
+    lineStart: true
+  },
   { icon: <IconCode size={14} />, title: '代码', prefix: '`', suffix: '`', placeholder: '代码' },
-  { icon: <IconLink size={14} />, title: '链接', prefix: '[', suffix: '](url)', placeholder: '链接文本' },
-  { icon: <IconImage size={14} />, title: '图片', prefix: '![', suffix: '](url)', placeholder: '图片描述' },
-  { icon: <IconList size={14} />, title: '列表', prefix: '- ', suffix: '', placeholder: '列表项', lineStart: true },
-  { icon: <IconOrderedList size={14} />, title: '有序列表', prefix: '1. ', suffix: '', placeholder: '列表项', lineStart: true },
-  { icon: <IconDivider size={14} />, title: '分割线', prefix: '\n---\n', suffix: '', placeholder: '' },
-  { icon: <IconTaskList size={14} />, title: '任务列表', prefix: '- [ ] ', suffix: '', placeholder: '任务', lineStart: true }
+  {
+    icon: <IconLink size={14} />,
+    title: '链接',
+    prefix: '[',
+    suffix: '](url)',
+    placeholder: '链接文本'
+  },
+  {
+    icon: <IconImage size={14} />,
+    title: '图片',
+    prefix: '![',
+    suffix: '](url)',
+    placeholder: '图片描述'
+  },
+  {
+    icon: <IconList size={14} />,
+    title: '列表',
+    prefix: '- ',
+    suffix: '',
+    placeholder: '列表项',
+    lineStart: true
+  },
+  {
+    icon: <IconOrderedList size={14} />,
+    title: '有序列表',
+    prefix: '1. ',
+    suffix: '',
+    placeholder: '列表项',
+    lineStart: true
+  },
+  {
+    icon: <IconDivider size={14} />,
+    title: '分割线',
+    prefix: '\n---\n',
+    suffix: '',
+    placeholder: ''
+  },
+  {
+    icon: <IconTaskList size={14} />,
+    title: '任务列表',
+    prefix: '- [ ] ',
+    suffix: '',
+    placeholder: '任务',
+    lineStart: true
+  }
 ]
 
 interface ToolbarProps {
@@ -49,16 +160,36 @@ interface ToolbarProps {
 }
 
 export default function Toolbar({ onInsertFormat }: ToolbarProps) {
-  const {
-    viewMode,
-    setViewMode,
-    fontSize,
-    setFontSize,
-    toggleSidebar,
-    toggleTheme,
-    setShowSearch,
-    setShowSettings
-  } = useNoteStore()
+  const viewMode = useNoteStore((s) => s.viewMode)
+  const setViewMode = useNoteStore((s) => s.setViewMode)
+  const fontSize = useNoteStore((s) => s.fontSize)
+  const setFontSize = useNoteStore((s) => s.setFontSize)
+  const toggleSidebar = useNoteStore((s) => s.toggleSidebar)
+  const toggleTheme = useNoteStore((s) => s.toggleTheme)
+  const setShowSearch = useNoteStore((s) => s.setShowSearch)
+  const setShowSettings = useNoteStore((s) => s.setShowSettings)
+  const setShowOutline = useNoteStore((s) => s.setShowOutline)
+  const syncScroll = useNoteStore((s) => s.syncScroll)
+  const toggleSyncScroll = useNoteStore((s) => s.toggleSyncScroll)
+  const typewriterMode = useNoteStore((s) => s.typewriterMode)
+  const toggleTypewriterMode = useNoteStore((s) => s.toggleTypewriterMode)
+
+  const handleExport = useCallback(async (format: 'pdf' | 'html') => {
+    const state = useNoteStore.getState()
+    const activeTab = state.openTabs.find((t) => t.path === state.activeTabPath)
+    if (!activeTab) return
+
+    const body = md.render(activeTab.content)
+    const title = activeTab.name.replace(/\.md$/, '')
+    const html = buildExportHTML(title, body)
+    const defaultName = `${title}.${format}`
+
+    if (format === 'pdf') {
+      await exportFile.pdf(html, defaultName)
+    } else {
+      await exportFile.html(html, defaultName)
+    }
+  }, [])
 
   return (
     <div className={styles.toolbar}>
@@ -128,7 +259,47 @@ export default function Toolbar({ onInsertFormat }: ToolbarProps) {
         </button>
       </div>
 
+      <div className={styles.separator} />
+
+      <div className={styles.group}>
+        <button
+          className={`${styles.btn} ${syncScroll ? styles.active : ''}`}
+          onClick={toggleSyncScroll}
+          title={syncScroll ? '关闭同步滚动' : '开启同步滚动'}
+        >
+          <IconSyncScroll size={14} />
+        </button>
+        <button
+          className={`${styles.btn} ${typewriterMode ? styles.active : ''}`}
+          onClick={toggleTypewriterMode}
+          title={typewriterMode ? '关闭打字机模式' : '开启打字机模式'}
+        >
+          <IconTypewriter size={14} />
+        </button>
+      </div>
+
       <div className={styles.spacer} />
+
+      <div className={styles.group}>
+        <button className={styles.btn} onClick={() => setShowOutline(true)} title="大纲">
+          <IconOutline size={14} />
+        </button>
+      </div>
+
+      <div className={styles.separator} />
+
+      <div className={styles.group}>
+        <button className={styles.btn} onClick={() => handleExport('pdf')} title="导出 PDF">
+          <IconExport size={14} />
+          <span className={styles.fontSizeBtn}>PDF</span>
+        </button>
+        <button className={styles.btn} onClick={() => handleExport('html')} title="导出 HTML">
+          <IconExport size={14} />
+          <span className={styles.fontSizeBtn}>HTML</span>
+        </button>
+      </div>
+
+      <div className={styles.separator} />
 
       <div className={styles.group}>
         <button className={styles.btn} onClick={() => setShowSearch(true)} title="搜索 (Ctrl+F)">

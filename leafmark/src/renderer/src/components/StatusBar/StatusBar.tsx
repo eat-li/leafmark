@@ -1,20 +1,27 @@
+import { useMemo } from 'react'
 import { useNoteStore } from '../../store/noteStore'
 import styles from './StatusBar.module.css'
 
 export default function StatusBar() {
-  const { openTabs, activeTabPath, viewMode } = useNoteStore()
-  const activeTab = openTabs.find((t) => t.path === activeTabPath)
+  const openTabs = useNoteStore((s) => s.openTabs)
+  const activeTabPath = useNoteStore((s) => s.activeTabPath)
+  const viewMode = useNoteStore((s) => s.viewMode)
 
-  const lineCount = activeTab ? activeTab.content.split('\n').length : 0
-  const charCount = activeTab ? activeTab.content.length : 0
+  const { activeTab, lineCount, charCount } = useMemo(() => {
+    const tab = openTabs.find((t) => t.path === activeTabPath)
+    if (!tab) return { activeTab: null, lineCount: 0, charCount: 0 }
+    return {
+      activeTab: tab,
+      lineCount: tab.content.split('\n').length,
+      charCount: tab.content.length
+    }
+  }, [openTabs, activeTabPath])
 
   return (
     <div className={styles.statusBar}>
       <div className={styles.left}>
         {activeTab && (
-          <span className={styles.item}>
-            {activeTab.modified ? '已修改' : '已保存'}
-          </span>
+          <span className={styles.item}>{activeTab.modified ? '已修改' : '已保存'}</span>
         )}
       </div>
       <div className={styles.right}>

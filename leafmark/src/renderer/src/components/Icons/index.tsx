@@ -325,3 +325,53 @@ export function IconChevronRight(props: IconProps): React.ReactNode {
 export function IconChevronDown(props: IconProps): React.ReactNode {
   return wrap(props, <polyline points="6 9 12 15 18 9" />)
 }
+
+export function IconSyncScroll(props: IconProps): React.ReactNode {
+  return wrap(
+    props,
+    <>
+      <path d="M8 3 L8 21" />
+      <path d="M16 3 L16 21" />
+      <path d="M5 8 L8 5 L11 8" />
+      <path d="M13 16 L16 19 L19 16" />
+    </>
+  )
+}
+
+export function IconTypewriter(props: IconProps): React.ReactNode {
+  return wrap(
+    props,
+    <>
+      <rect x="2" y="6" width="20" height="12" rx="2" />
+      <line x1="6" y1="10" x2="6" y2="10.01" />
+      <line x1="10" y1="10" x2="10" y2="10.01" />
+      <line x1="14" y1="10" x2="14" y2="10.01" />
+      <line x1="18" y1="10" x2="18" y2="10.01" />
+      <line x1="7" y1="14" x2="17" y2="14" />
+      <path d="M12 2 L12 6" />
+    </>
+  )
+}
+
+export function IconExport(props: IconProps): React.ReactNode {
+  return wrap(
+    props,
+    <>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
+    </>
+  )
+}
+
+export function IconOutline(props: IconProps): React.ReactNode {
+  return wrap(
+    props,
+    <>
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="6" y1="10" x2="18" y2="10" />
+      <line x1="9" y1="14" x2="18" y2="14" />
+      <line x1="6" y1="18" x2="15" y2="18" />
+    </>
+  )
+}

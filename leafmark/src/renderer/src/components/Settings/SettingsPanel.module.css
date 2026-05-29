@@ -1,35 +1,51 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(61, 56, 50, 0.4);
+  background: rgba(58, 53, 46, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .panel {
   width: 520px;
-  max-height: 500px;
-  background: var(--bg-primary);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
+  max-height: 560px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  animation: slideUp 0.2s ease;
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border-color);
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .title {
   font-size: 16px;
   font-weight: 600;
+  letter-spacing: 0.3px;
 }
 
 .closeBtn {
@@ -37,46 +53,48 @@
   height: 28px;
   border: none;
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   cursor: pointer;
   border-radius: var(--radius-sm);
   font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all var(--transition-fast);
 }
 
 .closeBtn:hover {
   background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .body {
   overflow-y: auto;
-  padding: 20px;
+  padding: 22px;
 }
 
 .section {
-  margin-bottom: 24px;
+  margin-bottom: 26px;
 }
 
 .sectionTitle {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 12px;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
 }
 
 .item {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .label {
   display: block;
-  font-size: 14px;
-  color: var(--text-primary);
-  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
 }
 
 .themeButtons {
@@ -85,40 +103,153 @@
 }
 
 .themeBtn {
-  padding: 6px 16px;
+  padding: 7px 18px;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: var(--bg-primary);
   color: var(--text-primary);
   cursor: pointer;
   font-size: 13px;
-  transition: all var(--transition);
+  transition: all var(--transition-fast);
 }
 
 .themeBtn:hover {
   background: var(--bg-hover);
+  border-color: var(--border-strong);
 }
 
 .themeBtn.active {
   background: var(--accent-color);
   color: #fff;
   border-color: var(--accent-color);
+  box-shadow: var(--shadow-xs);
 }
 
 .range {
   width: 100%;
   accent-color: var(--accent-color);
+  height: 4px;
 }
 
+/* — 行为设置 — Setting Row — */
+.settingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.settingRow:last-of-type {
+  border-bottom: none;
+}
+
+.settingInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settingName {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.settingDesc {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* — Toggle Switch — */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-tertiary);
+  border-radius: 22px;
+  border: 1px solid var(--border-color);
+  transition: all var(--transition);
+}
+
+.slider::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 2px;
+  bottom: 2px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: var(--shadow-xs);
+  transition: transform var(--transition);
+}
+
+.toggle input:checked + .slider {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.toggle input:checked + .slider::before {
+  transform: translateX(18px);
+}
+
+/* — 自动保存间隔 — */
+.intervalRow {
+  padding: 10px 0 14px;
+}
+
+.intervalButtons {
+  display: flex;
+  gap: 6px;
+}
+
+.intervalBtn {
+  padding: 5px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all var(--transition-fast);
+}
+
+.intervalBtn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}
+
+.intervalBtn.active {
+  background: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+}
+
+/* — 工作区 — */
 .pathRow {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .path {
   flex: 1;
-  padding: 6px 10px;
+  padding: 7px 12px;
   background: var(--bg-tertiary);
   border-radius: var(--radius-sm);
   font-size: 12px;
@@ -126,10 +257,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  border: 1px solid var(--border-light);
 }
 
 .changeBtn {
-  padding: 6px 12px;
+  padding: 7px 14px;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   background: var(--bg-primary);
@@ -137,19 +270,23 @@
   cursor: pointer;
   font-size: 13px;
   white-space: nowrap;
+  transition: all var(--transition-fast);
 }
 
 .changeBtn:hover {
   background: var(--bg-hover);
+  border-color: var(--border-strong);
 }
 
 .version {
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 
 .desc {
   color: var(--text-secondary);
   font-size: 13px;
-  margin-top: 4px;
+  margin-top: 6px;
+  line-height: 1.5;
 }

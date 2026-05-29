@@ -12,43 +12,48 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border-color);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .title {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   color: var(--text-muted);
-  letter-spacing: 0.8px;
+  letter-spacing: 1px;
 }
 
 .actions {
   display: flex;
-  gap: 1px;
+  gap: 2px;
 }
 
 .actionBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border: none;
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
   border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
 }
 
 .actionBtn:hover {
   background: var(--bg-hover);
-  color: var(--text-primary);
+  color: var(--accent-color);
+}
+
+.actionBtn:active {
+  transform: scale(0.9);
 }
 
 .search {
-  padding: 8px;
+  padding: 8px 10px;
 }
 
 .searchWrapper {
@@ -59,51 +64,54 @@
 
 .searchIcon {
   position: absolute;
-  left: 8px;
-  color: var(--text-muted);
+  left: 9px;
+  color: var(--text-faint);
   pointer-events: none;
 }
 
 .searchInput {
   width: 100%;
-  padding: 5px 8px 5px 26px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
+  padding: 6px 8px 6px 28px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
   background: var(--bg-primary);
   color: var(--text-primary);
   font-size: 12px;
   outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .searchInput:focus {
   border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
 .searchInput::placeholder {
-  color: var(--text-muted);
+  color: var(--text-faint);
 }
 
 .newItemRow {
-  padding: 0 8px 8px;
+  padding: 0 10px 8px;
 }
 
 .newItemInput {
   width: 100%;
-  padding: 5px 8px;
-  border: 1px solid var(--accent-color);
+  padding: 6px 8px;
+  border: 1.5px solid var(--accent-color);
   border-radius: var(--radius-sm);
   background: var(--bg-primary);
   color: var(--text-primary);
   font-size: 12px;
   outline: none;
+  box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
 .error {
-  padding: 4px 12px;
+  padding: 5px 10px;
   font-size: 11px;
   color: var(--danger-color);
-  background: rgba(231, 76, 60, 0.08);
-  margin: 0 8px 4px;
+  background: var(--danger-soft);
+  margin: 0 10px 6px;
   border-radius: var(--radius-sm);
 }
 
@@ -114,8 +122,50 @@
 }
 
 .empty {
-  padding: 16px;
+  padding: 24px 16px;
   text-align: center;
-  color: var(--text-muted);
+  color: var(--text-faint);
   font-size: 13px;
+}
+
+/* — 标签筛选栏 — */
+.tagFilterBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px 10px 6px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.tagFilterChip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.tagFilterChip:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}
+
+.tagFilterChip.active {
+  border-color: var(--accent-color);
+  background: var(--accent-soft);
+  color: var(--text-primary);
+}
+
+.tagFilterDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }

@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: leafmark
+appId: com.leafmark.editor
+productName: LeafMark
 directories:
   buildResources: build
 files:
@@ -12,6 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
+  icon: build/icon.ico
   executableName: leafmark
 nsis:
   artifactName: ${name}-${version}-setup.${ext}

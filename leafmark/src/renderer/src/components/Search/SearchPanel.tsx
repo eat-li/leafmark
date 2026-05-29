@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNoteStore } from '../../store/noteStore'
 import { fs } from '../../api/electron'
 import styles from './SearchPanel.module.css'
@@ -10,8 +10,18 @@ interface SearchResult {
   preview: string
 }
 
+interface FileEntry {
+  name: string
+  path: string
+  type: 'file' | 'directory'
+  children?: FileEntry[]
+}
+
 export default function SearchPanel() {
-  const { showSearch, setShowSearch, workspaceDir, openFile } = useNoteStore()
+  const showSearch = useNoteStore((s) => s.showSearch)
+  const setShowSearch = useNoteStore((s) => s.setShowSearch)
+  const workspaceDir = useNoteStore((s) => s.workspaceDir)
+  const openFile = useNoteStore((s) => s.openFile)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [searching, setSearching] = useState(false)
@@ -37,47 +47,60 @@ export default function SearchPanel() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [setShowSearch])
 
-  const handleSearch = async () => {
+  const collectFiles = (nodes: FileEntry[]): string[] => {
+    const files: string[] = []
+    for (const node of nodes) {
+      if (node.type === 'directory') {
+        files.push(...collectFiles(node.children || []))
+      } else {
+        files.push(node.path)
+      }
+    }
+    return files
+  }
+
+  const handleSearch = useCallback(async () => {
     if (!query.trim() || !workspaceDir) return
     setSearching(true)
-    const found: SearchResult[] = []
 
     try {
       const tree = await fs.readDirTree(workspaceDir)
-      const searchInTree = async (nodes: typeof tree) => {
-        for (const node of nodes) {
-          if (node.type === 'directory') {
-            await searchInTree(node.children || [])
-          } else {
-            try {
-              const content = await fs.readFile(node.path)
-              const lines = content.split('\n')
-              lines.forEach((line, idx) => {
-                if (line.toLowerCase().includes(query.toLowerCase())) {
-                  found.push({
-                    path: node.path,
-                    name: node.name,
-                    line: idx + 1,
-                    preview: line.trim().substring(0, 100)
-                  })
-                }
-              })
-            } catch {
-              // 跳过读取失败的文件
-            }
+      const filePaths = collectFiles(tree)
+
+      // 并行读取所有文件并搜索
+      const searchResults = await Promise.all(
+        filePaths.map(async (filePath) => {
+          try {
+            const content = await fs.readFile(filePath)
+            const lines = content.split('\n')
+            const fileResults: SearchResult[] = []
+            const fileName = filePath.split(/[/\\]/).pop() || ''
+            lines.forEach((line, idx) => {
+              if (line.toLowerCase().includes(query.toLowerCase())) {
+                fileResults.push({
+                  path: filePath,
+                  name: fileName,
+                  line: idx + 1,
+                  preview: line.trim().substring(0, 100)
+                })
+              }
+            })
+            return fileResults
+          } catch {
+            return []
           }
-        }
-      }
-      await searchInTree(tree)
+        })
+      )
+
+      setResults(searchResults.flat())
     } finally {
-      setResults(found)
       setSearching(false)
     }
-  }
+  }, [query, workspaceDir])
 
-  const handleResultClick = (result: SearchResult) => {
+  const handleResultClick = useCallback((result: SearchResult) => {
     openFile(result.path, result.name)
-  }
+  }, [openFile])
 
   if (!showSearch) return null
 

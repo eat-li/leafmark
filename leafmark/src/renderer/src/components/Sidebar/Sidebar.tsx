@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNoteStore } from '../../store/noteStore'
 import { dialog } from '../../api/electron'
 import FileTreeNode from './FileTreeNode'
@@ -12,23 +12,45 @@ import {
 import styles from './Sidebar.module.css'
 
 export default function Sidebar() {
-  const {
-    fileTree,
-    sidebarFilter,
-    setSidebarFilter,
-    workspaceDir,
-    createNote,
-    createFolder,
-    importFile,
-    refreshFileTree
-  } = useNoteStore()
+  const fileTree = useNoteStore((s) => s.fileTree)
+  const sidebarFilter = useNoteStore((s) => s.sidebarFilter)
+  const setSidebarFilter = useNoteStore((s) => s.setSidebarFilter)
+  const workspaceDir = useNoteStore((s) => s.workspaceDir)
+  const createNote = useNoteStore((s) => s.createNote)
+  const createFolder = useNoteStore((s) => s.createFolder)
+  const importFile = useNoteStore((s) => s.importFile)
+  const refreshFileTree = useNoteStore((s) => s.refreshFileTree)
+  const tags = useNoteStore((s) => s.tags)
+  const tagColors = useNoteStore((s) => s.tagColors)
+  const tagFilter = useNoteStore((s) => s.tagFilter)
+  const setTagFilter = useNoteStore((s) => s.setTagFilter)
 
   const [showNewFileInput, setShowNewFileInput] = useState(false)
   const [showNewFolderInput, setShowNewFolderInput] = useState(false)
   const [newItemName, setNewItemName] = useState('')
   const [error, setError] = useState('')
 
-  const filteredTree = sidebarFilter ? filterTree(fileTree, sidebarFilter.toLowerCase()) : fileTree
+  // 获取所有标签
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>()
+    for (const fileTags of Object.values(tags)) {
+      for (const t of fileTags) tagSet.add(t)
+    }
+    return Array.from(tagSet).sort()
+  }, [tags])
+
+  const filteredTree = useMemo(() => {
+    let tree = fileTree
+    // 标签筛选
+    if (tagFilter) {
+      tree = filterTreeByTag(tree, tagFilter, tags)
+    }
+    // 文件名搜索
+    if (sidebarFilter) {
+      tree = filterTree(tree, sidebarFilter.toLowerCase())
+    }
+    return tree
+  }, [fileTree, sidebarFilter, tagFilter, tags])
 
   const handleNewFile = async () => {
     if (!newItemName.trim()) {
@@ -133,6 +155,24 @@ export default function Sidebar() {
         </div>
       </div>
 
+      {allTags.length > 0 && (
+        <div className={styles.tagFilterBar}>
+          {allTags.map((tag) => (
+            <button
+              key={tag}
+              className={`${styles.tagFilterChip} ${tagFilter === tag ? styles.active : ''}`}
+              onClick={() => setTagFilter(tag)}
+            >
+              <span
+                className={styles.tagFilterDot}
+                style={{ backgroundColor: tagColors[tag] || '#999' }}
+              />
+              {tag}
+            </button>
+          ))}
+        </div>
+      )}
+
       {(showNewFileInput || showNewFolderInput) && (
         <div className={styles.newItemRow}>
           <input
@@ -151,7 +191,9 @@ export default function Sidebar() {
 
       <div className={styles.tree}>
         {filteredTree.length === 0 ? (
-          <div className={styles.empty}>暂无文件</div>
+          <div className={styles.empty}>
+            {tagFilter ? '该标签下暂无文件' : '暂无文件'}
+          </div>
         ) : (
           filteredTree.map((node) => <FileTreeNode key={node.path} node={node} level={0} />)
         )}
@@ -168,6 +210,20 @@ function filterTree(nodes: any[], filter: string): any[] {
         acc.push({ ...node, children })
       }
     } else if (node.name.toLowerCase().includes(filter)) {
+      acc.push(node)
+    }
+    return acc
+  }, [])
+}
+
+function filterTreeByTag(nodes: any[], tag: string, tags: Record<string, string[]>): any[] {
+  return nodes.reduce((acc: any[], node: any) => {
+    if (node.type === 'directory') {
+      const children = filterTreeByTag(node.children || [], tag, tags)
+      if (children.length > 0) {
+        acc.push({ ...node, children })
+      }
+    } else if ((tags[node.path] || []).includes(tag)) {
       acc.push(node)
     }
     return acc
