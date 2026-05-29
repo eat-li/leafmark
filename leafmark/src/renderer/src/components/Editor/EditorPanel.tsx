@@ -11,12 +11,12 @@ import { useNoteStore } from '../../store/noteStore'
 import { clipboard } from '../../api/electron'
 import styles from './EditorPanel.module.css'
 
-// 自定义浅色主题
+// 自定义浅色主题 — Indigo Ink
 const leafmarkLightTheme = EditorView.theme({
   '&': {
     height: '100%',
-    color: '#3a352e',
-    backgroundColor: '#faf6f1'
+    color: '#1b1f3b',
+    backgroundColor: '#f5f6fb'
   },
   '.cm-scroller': {
     overflow: 'auto',
@@ -25,109 +25,110 @@ const leafmarkLightTheme = EditorView.theme({
   },
   '.cm-content': {
     padding: '16px 0',
-    caretColor: '#bf7556'
+    caretColor: '#5062d0'
   },
   '.cm-line': {
     padding: '0 20px'
   },
   '.cm-cursor, .cm-dropCursor': {
-    borderLeftColor: '#bf7556',
+    borderLeftColor: '#5062d0',
     borderLeftWidth: '2px'
   },
   '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': {
-    backgroundColor: 'rgba(191, 117, 86, 0.12) !important'
+    backgroundColor: 'rgba(80, 98, 208, 0.12) !important'
   },
   '.cm-activeLine': {
-    backgroundColor: 'rgba(191, 117, 86, 0.04)'
+    backgroundColor: 'rgba(80, 98, 208, 0.04)'
   },
   '.cm-gutters': {
-    backgroundColor: '#f3ede5',
-    color: '#a49b8e',
+    backgroundColor: '#eeeff6',
+    color: '#7f85a5',
     border: 'none'
   },
   '.cm-activeLineGutter': {
     backgroundColor: 'transparent',
-    color: '#bf7556'
+    color: '#5062d0'
   },
   '.cm-foldPlaceholder': {
-    backgroundColor: '#ebe4da',
+    backgroundColor: '#e4e6f0',
     border: 'none',
-    color: '#736b5f'
+    color: '#4e5475'
   },
   '.cm-tooltip': {
-    backgroundColor: '#fffdf9',
-    border: '1px solid #ddd5ca',
+    backgroundColor: '#fafbff',
+    border: '1px solid #dce0ea',
     borderRadius: '6px',
-    boxShadow: '0 4px 12px rgba(58, 53, 46, 0.08)'
+    boxShadow: '0 4px 12px rgba(10, 15, 40, 0.07)'
   },
   '.cm-tooltip-autocomplete ul li': {
     padding: '4px 8px'
   },
   '.cm-tooltip-autocomplete ul li[aria-selected]': {
-    backgroundColor: 'rgba(191, 117, 86, 0.1)',
-    color: '#3a352e'
+    backgroundColor: 'rgba(80, 98, 208, 0.1)',
+    color: '#1b1f3b'
   },
   '.cm-searchMatch': {
-    backgroundColor: 'rgba(191, 117, 86, 0.2)',
-    outline: '1px solid rgba(191, 117, 86, 0.4)'
+    backgroundColor: 'rgba(80, 98, 208, 0.2)',
+    outline: '1px solid rgba(80, 98, 208, 0.35)'
   },
   '.cm-searchMatch.cm-searchMatch-selected': {
-    backgroundColor: 'rgba(191, 117, 86, 0.35)'
+    backgroundColor: 'rgba(80, 98, 208, 0.35)'
   }
 })
 
+// Indigo Ink — 浅色语法高亮
 const leafmarkLightHighlight = HighlightStyle.define([
-  { tag: tags.heading, color: '#3a352e', fontWeight: '700' },
-  { tag: tags.heading1, fontSize: '1.4em', color: '#bf7556' },
-  { tag: tags.heading2, fontSize: '1.2em', color: '#5b4a3a' },
+  { tag: tags.heading, color: '#1b1f3b', fontWeight: '700' },
+  { tag: tags.heading1, fontSize: '1.4em', color: '#5062d0' },
+  { tag: tags.heading2, fontSize: '1.2em', color: '#3d4a9e' },
   { tag: tags.heading3, fontSize: '1.05em' },
-  { tag: tags.strong, fontWeight: '700', color: '#3a352e' },
-  { tag: tags.emphasis, fontStyle: 'italic', color: '#5b4a3a' },
-  { tag: tags.strikethrough, textDecoration: 'line-through', color: '#a49b8e' },
-  { tag: tags.link, color: '#bf7556', textDecoration: 'underline' },
-  { tag: tags.url, color: '#736b5f' },
-  { tag: tags.atom, color: '#bf7556' },
-  { tag: tags.bool, color: '#bf7556' },
-  { tag: tags.labelName, color: '#736b5f' },
-  { tag: tags.string, color: '#5a8a5e' },
-  { tag: tags.special(tags.string), color: '#5a8a5e' },
-  { tag: tags.regexp, color: '#c44d3e' },
-  { tag: tags.quote, color: '#736b5f', fontStyle: 'italic' },
-  { tag: tags.comment, color: '#a49b8e', fontStyle: 'italic' },
-  { tag: tags.meta, color: '#a49b8e' },
-  { tag: tags.variableName, color: '#3a352e' },
-  { tag: tags.local(tags.variableName), color: '#3a352e' },
-  { tag: tags.definition(tags.variableName), color: '#bf7556' },
-  { tag: tags.function(tags.variableName), color: '#bf7556' },
-  { tag: tags.typeName, color: '#bf7556' },
-  { tag: tags.namespace, color: '#5b7fa6' },
-  { tag: tags.className, color: '#bf7556' },
-  { tag: tags.macroName, color: '#bf7556' },
-  { tag: tags.propertyName, color: '#5b7fa6' },
-  { tag: tags.operator, color: '#bf7556' },
-  { tag: tags.compareOperator, color: '#bf7556' },
-  { tag: tags.arithmeticOperator, color: '#bf7556' },
-  { tag: tags.logicOperator, color: '#bf7556' },
-  { tag: tags.updateOperator, color: '#bf7556' },
-  { tag: tags.punctuation, color: '#a49b8e' },
-  { tag: tags.paren, color: '#736b5f' },
-  { tag: tags.squareBracket, color: '#736b5f' },
-  { tag: tags.brace, color: '#736b5f' },
-  { tag: tags.number, color: '#bf7556' },
-  { tag: tags.keyword, color: '#c44d3e' },
-  { tag: tags.operatorKeyword, color: '#c44d3e' },
-  { tag: tags.escape, color: '#bf7556' },
-  { tag: tags.processingInstruction, color: '#a49b8e' },
-  { tag: tags.inserted, color: '#5a8a5e' },
-  { tag: tags.deleted, color: '#c44d3e' },
-  { tag: tags.changed, color: '#bf7556' },
-  { tag: tags.invalid, color: '#c44d3e', textDecoration: 'underline' },
-  { tag: tags.content, color: '#3a352e' },
-  { tag: tags.list, color: '#736b5f' },
-  { tag: tags.contentSeparator, color: '#ddd5ca' }
+  { tag: tags.strong, fontWeight: '700', color: '#1b1f3b' },
+  { tag: tags.emphasis, fontStyle: 'italic', color: '#4e5475' },
+  { tag: tags.strikethrough, textDecoration: 'line-through', color: '#7f85a5' },
+  { tag: tags.link, color: '#5062d0', textDecoration: 'underline' },
+  { tag: tags.url, color: '#4e5475' },
+  { tag: tags.atom, color: '#5062d0' },
+  { tag: tags.bool, color: '#5062d0' },
+  { tag: tags.labelName, color: '#4e5475' },
+  { tag: tags.string, color: '#338a4e' },
+  { tag: tags.special(tags.string), color: '#338a4e' },
+  { tag: tags.regexp, color: '#c04d8e' },
+  { tag: tags.quote, color: '#4e5475', fontStyle: 'italic' },
+  { tag: tags.comment, color: '#7f85a5', fontStyle: 'italic' },
+  { tag: tags.meta, color: '#7f85a5' },
+  { tag: tags.variableName, color: '#1b1f3b' },
+  { tag: tags.local(tags.variableName), color: '#1b1f3b' },
+  { tag: tags.definition(tags.variableName), color: '#5062d0' },
+  { tag: tags.function(tags.variableName), color: '#5062d0' },
+  { tag: tags.typeName, color: '#5062d0' },
+  { tag: tags.namespace, color: '#3d7fba' },
+  { tag: tags.className, color: '#5062d0' },
+  { tag: tags.macroName, color: '#5062d0' },
+  { tag: tags.propertyName, color: '#3d7fba' },
+  { tag: tags.operator, color: '#5062d0' },
+  { tag: tags.compareOperator, color: '#5062d0' },
+  { tag: tags.arithmeticOperator, color: '#5062d0' },
+  { tag: tags.logicOperator, color: '#5062d0' },
+  { tag: tags.updateOperator, color: '#5062d0' },
+  { tag: tags.punctuation, color: '#7f85a5' },
+  { tag: tags.paren, color: '#4e5475' },
+  { tag: tags.squareBracket, color: '#4e5475' },
+  { tag: tags.brace, color: '#4e5475' },
+  { tag: tags.number, color: '#5062d0' },
+  { tag: tags.keyword, color: '#c04d8e' },
+  { tag: tags.operatorKeyword, color: '#c04d8e' },
+  { tag: tags.escape, color: '#5062d0' },
+  { tag: tags.processingInstruction, color: '#7f85a5' },
+  { tag: tags.inserted, color: '#338a4e' },
+  { tag: tags.deleted, color: '#c04d8e' },
+  { tag: tags.changed, color: '#5062d0' },
+  { tag: tags.invalid, color: '#c04d8e', textDecoration: 'underline' },
+  { tag: tags.content, color: '#1b1f3b' },
+  { tag: tags.list, color: '#4e5475' },
+  { tag: tags.contentSeparator, color: '#dce0ea' }
 ])
 
-// 深色主题的编辑器微调
+// 深色主题的编辑器微调 — Night Lamp
 const leafmarkDarkTheme = EditorView.theme({
   '&': {
     height: '100%'
@@ -144,7 +145,7 @@ const leafmarkDarkTheme = EditorView.theme({
     padding: '0 20px'
   },
   '.cm-activeLine': {
-    backgroundColor: 'rgba(212, 137, 106, 0.04)'
+    backgroundColor: 'rgba(111, 131, 242, 0.06)'
   }
 })
 
