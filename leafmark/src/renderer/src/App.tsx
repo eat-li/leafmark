@@ -1,5 +1,6 @@
-import { useEffect, useCallback, useRef } from 'react'
+import { useEffect, useCallback, useRef, useState } from 'react'
 import { useNoteStore } from './store/noteStore'
+import { dialog } from './api/electron'
 import TitleBar from './components/TitleBar/TitleBar'
 import Sidebar from './components/Sidebar/Sidebar'
 import Toolbar from './components/Toolbar/Toolbar'
@@ -21,6 +22,13 @@ function App(): React.JSX.Element {
   const saveFile = useNoteStore((s) => s.saveFile)
   const saveAllFiles = useNoteStore((s) => s.saveAllFiles)
   const syncScroll = useNoteStore((s) => s.syncScroll)
+  const workspaceDir = useNoteStore((s) => s.workspaceDir)
+  const createNote = useNoteStore((s) => s.createNote)
+  const openFile = useNoteStore((s) => s.openFile)
+
+  // 新建文件弹窗状态
+  const [showNewFileDialog, setShowNewFileDialog] = useState(false)
+  const [newFileName, setNewFileName] = useState('')
 
   const insertFnRef = useRef<
     ((prefix: string, suffix: string, placeholder: string, lineStart: boolean) => void) | null
@@ -56,7 +64,8 @@ function App(): React.JSX.Element {
   // 全局快捷键
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      const ctrl = e.ctrlKey || e.metaKey
+      if (ctrl && e.key === 's') {
         e.preventDefault()
         if (e.shiftKey) {
           saveAllFiles()
@@ -64,10 +73,34 @@ function App(): React.JSX.Element {
           saveFile()
         }
       }
+      if (ctrl && e.key === 'n') {
+        e.preventDefault()
+        setShowNewFileDialog(true)
+        setNewFileName('')
+      }
+      if (ctrl && e.key === 'o') {
+        e.preventDefault()
+        dialog
+          .open({
+            properties: ['openFile'],
+            title: '打开 Markdown 文件',
+            filters: [{ name: 'Markdown 文件', extensions: ['md'] }]
+          })
+          .then((paths) => {
+            if (paths && paths.length > 0) {
+              const p = paths[0]
+              const name = p.split(/[/\\]/).pop() || p
+              openFile(p, name)
+            }
+          })
+          .catch((err: any) => {
+            console.error('打开文件失败:', err)
+          })
+      }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [saveFile, saveAllFiles])
+  }, [saveFile, saveAllFiles, createNote, openFile])
 
   // 自动保存定时器
   useEffect(() => {
@@ -124,6 +157,21 @@ function App(): React.JSX.Element {
     scrollToLineRef.current = fn
   }, [])
 
+  // 确认新建文件
+  const handleCreateNewFile = useCallback(async () => {
+    const name = newFileName.trim()
+    if (!name || !workspaceDir) {
+      setShowNewFileDialog(false)
+      return
+    }
+    try {
+      await createNote(workspaceDir, name)
+    } catch (err: any) {
+      console.error('创建文件失败:', err)
+    }
+    setShowNewFileDialog(false)
+  }, [newFileName, workspaceDir, createNote])
+
   const isSplitMode = viewMode === 'split' && syncScroll
 
   return (
@@ -158,6 +206,41 @@ function App(): React.JSX.Element {
       <SearchPanel />
       <SettingsPanel />
       <OutlinePanel onScrollToLine={(line) => scrollToLineRef.current?.(line)} />
+
+      {/* 新建文件弹窗 */}
+      {showNewFileDialog && (
+        <div
+          className="dialog-overlay"
+          onClick={() => setShowNewFileDialog(false)}
+        >
+          <div
+            className="dialog-box"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="dialog-title">新建笔记</div>
+            <input
+              className="dialog-input"
+              type="text"
+              placeholder="输入文件名称..."
+              value={newFileName}
+              onChange={(e) => setNewFileName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleCreateNewFile()
+                if (e.key === 'Escape') setShowNewFileDialog(false)
+              }}
+              autoFocus
+            />
+            <div className="dialog-actions">
+              <button className="dialog-btn dialog-btn-cancel" onClick={() => setShowNewFileDialog(false)}>
+                取消
+              </button>
+              <button className="dialog-btn dialog-btn-confirm" onClick={handleCreateNewFile}>
+                创建
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
