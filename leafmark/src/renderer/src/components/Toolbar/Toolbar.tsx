@@ -300,7 +300,11 @@ export default function Toolbar({ onInsertFormat }: ToolbarProps) {
         <button className={styles.btn} onClick={() => setShowOutline(true)} title="大纲">
           <IconOutline size={14} />
         </button>
-        <button className={styles.btn} onClick={() => setShowHeatmap(true)} title="写作热力图 (Ctrl+H)">
+        <button
+          className={styles.btn}
+          onClick={() => setShowHeatmap(true)}
+          title="写作热力图 (Ctrl+Shift+H)"
+        >
           <IconHeatmap size={14} />
         </button>
       </div>
@@ -321,7 +325,7 @@ export default function Toolbar({ onInsertFormat }: ToolbarProps) {
       <div className={styles.separator} />
 
       <div className={styles.group}>
-        <button className={styles.btn} onClick={() => setShowSearch(true)} title="搜索 (Ctrl+F)">
+        <button className={styles.btn} onClick={() => setShowSearch(true)} title="全文搜索 (Ctrl+Shift+F)">
           <IconSearch size={14} />
         </button>
         <button className={styles.btn} onClick={toggleTheme} title="切换主题">

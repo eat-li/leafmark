@@ -4,6 +4,7 @@ import { EditorState, Extension, Compartment } from '@codemirror/state'
 import { markdown } from '@codemirror/lang-markdown'
 import { languages } from '@codemirror/language-data'
 import { defaultKeymap, indentWithTab } from '@codemirror/commands'
+import { search, searchKeymap } from '@codemirror/search'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { syntaxHighlighting, defaultHighlightStyle, HighlightStyle } from '@codemirror/language'
 import { tags } from '@lezer/highlight'
@@ -74,6 +75,46 @@ const leafmarkLightTheme = EditorView.theme({
   },
   '.cm-searchMatch.cm-searchMatch-selected': {
     backgroundColor: 'rgba(192, 122, 42, 0.35)'
+  },
+  // 查找替换面板样式 — Amber & Ash
+  '.cm-panel': {
+    backgroundColor: '#faf9f6',
+    borderTop: '1px solid #ddd9cf'
+  },
+  '.cm-panel input[type=text], .cm-panel input[type=search]': {
+    backgroundColor: '#f7f5f0',
+    border: '1px solid #ddd9cf',
+    borderRadius: '4px',
+    color: '#2c2a26',
+    fontSize: '13px'
+  },
+  '.cm-panel input:focus': {
+    outline: 'none',
+    borderColor: '#c07a2a',
+    boxShadow: '0 0 0 2px rgba(192, 122, 42, 0.15)'
+  },
+  '.cm-panel label': {
+    color: '#5e5a52',
+    fontSize: '12px'
+  },
+  '.cm-panel button': {
+    backgroundColor: '#efeee8',
+    color: '#5e5a52',
+    border: '1px solid #ddd9cf',
+    borderRadius: '4px',
+    cursor: 'pointer'
+  },
+  '.cm-panel button:hover': {
+    backgroundColor: '#e6e4dc'
+  },
+  '.cm-panel .cm-button-active': {
+    backgroundColor: '#c07a2a',
+    color: '#fff',
+    borderColor: '#c07a2a'
+  },
+  '.cm-searchResultsCount': {
+    color: '#8a857b',
+    fontSize: '12px'
   }
 })
 
@@ -147,6 +188,46 @@ const leafmarkDarkTheme = EditorView.theme({
   },
   '.cm-activeLine': {
     backgroundColor: 'rgba(217, 146, 58, 0.06)'
+  },
+  // 查找替换面板样式 — 深色主题
+  '.cm-panel': {
+    backgroundColor: '#1d1c19',
+    borderTop: '1px solid #3a3832'
+  },
+  '.cm-panel input[type=text], .cm-panel input[type=search]': {
+    backgroundColor: '#282622',
+    border: '1px solid #3a3832',
+    borderRadius: '4px',
+    color: '#e8e4db',
+    fontSize: '13px'
+  },
+  '.cm-panel input:focus': {
+    outline: 'none',
+    borderColor: '#d9923a',
+    boxShadow: '0 0 0 2px rgba(217, 146, 58, 0.15)'
+  },
+  '.cm-panel label': {
+    color: '#a8a298',
+    fontSize: '12px'
+  },
+  '.cm-panel button': {
+    backgroundColor: '#282622',
+    color: '#a8a298',
+    border: '1px solid #3a3832',
+    borderRadius: '4px',
+    cursor: 'pointer'
+  },
+  '.cm-panel button:hover': {
+    backgroundColor: '#302e29'
+  },
+  '.cm-panel .cm-button-active': {
+    backgroundColor: '#d9923a',
+    color: '#191816',
+    borderColor: '#d9923a'
+  },
+  '.cm-searchResultsCount': {
+    color: '#706b63',
+    fontSize: '12px'
   }
 })
 
@@ -368,7 +449,8 @@ export default function EditorPanel({
         doc: activeTab?.content || '',
         extensions: [
           markdown({ codeLanguages: languages }),
-          keymap.of([...defaultKeymap, indentWithTab]),
+          search(),
+          keymap.of([...defaultKeymap, ...searchKeymap, indentWithTab]),
           syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
           ...themeExtensions,
           fontSizeCompartment.of(makeFontSizeExt(fontSize)),

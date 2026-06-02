@@ -129,7 +129,7 @@ export default function HeatmapPanel() {
         <button
           className={styles.closeBtn}
           onClick={() => setShowHeatmap(false)}
-          title="关闭 (Ctrl+H)"
+          title="关闭 (Ctrl+Shift+H)"
         >
           <svg
             width="14"

@@ -134,7 +134,7 @@ function App(): React.JSX.Element {
             console.error('打开文件失败:', err)
           })
       }
-      if (ctrl && e.key === 'h') {
+      if (ctrl && e.shiftKey && e.key === 'H') {
         e.preventDefault()
         setShowHeatmap(!useNoteStore.getState().showHeatmap)
       }
@@ -171,7 +171,9 @@ function App(): React.JSX.Element {
     if (previewSyncingRef.current) return
     editorSyncingRef.current = true
     previewScrollToRef.current?.(percent)
-    setTimeout(() => { editorSyncingRef.current = false }, 50)
+    setTimeout(() => {
+      editorSyncingRef.current = false
+    }, 50)
   }, [])
 
   // 预览面板滚动时，直接驱动编辑器滚动
@@ -179,7 +181,9 @@ function App(): React.JSX.Element {
     if (editorSyncingRef.current) return
     previewSyncingRef.current = true
     editorScrollToRef.current?.(percent)
-    setTimeout(() => { previewSyncingRef.current = false }, 50)
+    setTimeout(() => {
+      previewSyncingRef.current = false
+    }, 50)
   }, [])
 
   // 编辑器注册自己的 scrollTo 回调
@@ -255,14 +259,8 @@ function App(): React.JSX.Element {
 
       {/* 新建文件弹窗 */}
       {showNewFileDialog && (
-        <div
-          className="dialog-overlay"
-          onClick={() => setShowNewFileDialog(false)}
-        >
-          <div
-            className="dialog-box"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="dialog-overlay" onClick={() => setShowNewFileDialog(false)}>
+          <div className="dialog-box" onClick={(e) => e.stopPropagation()}>
             <div className="dialog-title">新建笔记</div>
             <input
               className="dialog-input"
@@ -277,7 +275,10 @@ function App(): React.JSX.Element {
               autoFocus
             />
             <div className="dialog-actions">
-              <button className="dialog-btn dialog-btn-cancel" onClick={() => setShowNewFileDialog(false)}>
+              <button
+                className="dialog-btn dialog-btn-cancel"
+                onClick={() => setShowNewFileDialog(false)}
+              >
                 取消
               </button>
               <button className="dialog-btn dialog-btn-confirm" onClick={handleCreateNewFile}>

@@ -35,7 +35,7 @@ export default function SearchPanel() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F') {
         e.preventDefault()
         setShowSearch(true)
       }
@@ -98,9 +98,12 @@ export default function SearchPanel() {
     }
   }, [query, workspaceDir])
 
-  const handleResultClick = useCallback((result: SearchResult) => {
-    openFile(result.path, result.name)
-  }, [openFile])
+  const handleResultClick = useCallback(
+    (result: SearchResult) => {
+      openFile(result.path, result.name)
+    },
+    [openFile]
+  )
 
   if (!showSearch) return null
 
@@ -132,9 +135,7 @@ export default function SearchPanel() {
 
         <div className={styles.results}>
           {results.length === 0 ? (
-            <div className={styles.empty}>
-              {query ? '无搜索结果' : '输入关键词开始搜索'}
-            </div>
+            <div className={styles.empty}>{query ? '无搜索结果' : '输入关键词开始搜索'}</div>
           ) : (
             results.map((result, idx) => (
               <div
@@ -152,9 +153,7 @@ export default function SearchPanel() {
           )}
         </div>
 
-        {results.length > 0 && (
-          <div className={styles.resultCount}>{results.length} 个匹配</div>
-        )}
+        {results.length > 0 && <div className={styles.resultCount}>{results.length} 个匹配</div>}
       </div>
     </div>
   )
