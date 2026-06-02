@@ -1,6 +1,20 @@
 import { useEffect, useCallback, useRef, useState, lazy, Suspense } from 'react'
 import { useNoteStore } from './store/noteStore'
 import { dialog, appSettings } from './api/electron'
+import {
+  ensureBuiltInTemplates,
+  loadTemplates,
+  applyTemplate,
+  getBuiltInVars,
+  type TemplateInfo
+} from './utils/template'
+import {
+  IconTemplateBlank,
+  IconTemplateDiary,
+  IconTemplateMeeting,
+  IconTemplateBook,
+  IconTemplateCustom
+} from './components/Icons'
 import TitleBar from './components/TitleBar/TitleBar'
 import Sidebar from './components/Sidebar/Sidebar'
 import Toolbar from './components/Toolbar/Toolbar'
@@ -36,6 +50,7 @@ function App(): React.JSX.Element {
   const syncScroll = useNoteStore((s) => s.syncScroll)
   const workspaceDir = useNoteStore((s) => s.workspaceDir)
   const createNote = useNoteStore((s) => s.createNote)
+  const createNoteFromTemplate = useNoteStore((s) => s.createNoteFromTemplate)
   const openFile = useNoteStore((s) => s.openFile)
   const showHeatmap = useNoteStore((s) => s.showHeatmap)
   const setShowHeatmap = useNoteStore((s) => s.setShowHeatmap)
@@ -43,6 +58,8 @@ function App(): React.JSX.Element {
   // 新建文件弹窗状态
   const [showNewFileDialog, setShowNewFileDialog] = useState(false)
   const [newFileName, setNewFileName] = useState('')
+  const [templates, setTemplates] = useState<TemplateInfo[]>([])
+  const [selectedTemplateIdx, setSelectedTemplateIdx] = useState(-1) // -1 = 空白笔记
 
   const insertFnRef = useRef<
     ((prefix: string, suffix: string, placeholder: string, lineStart: boolean) => void) | null
@@ -55,7 +72,10 @@ function App(): React.JSX.Element {
   const editorSyncingRef = useRef(false)
 
   useEffect(() => {
-    initWorkspace()
+    initWorkspace().then(() => {
+      const dir = useNoteStore.getState().workspaceDir
+      if (dir) ensureBuiltInTemplates(dir).catch(() => {})
+    })
   }, [initWorkspace])
 
   // 当用户切换到包含预览的模式时，预加载 PreviewPanel
@@ -114,6 +134,15 @@ function App(): React.JSX.Element {
         e.preventDefault()
         setShowNewFileDialog(true)
         setNewFileName('')
+        setSelectedTemplateIdx(-1)
+        // 加载模板列表
+        const dir = useNoteStore.getState().workspaceDir
+        if (dir) {
+          ensureBuiltInTemplates(dir)
+            .then(() => loadTemplates(dir))
+            .then((tpls) => setTemplates(tpls))
+            .catch(() => {})
+        }
       }
       if (ctrl && e.key === 'o') {
         e.preventDefault()
@@ -210,12 +239,19 @@ function App(): React.JSX.Element {
       return
     }
     try {
-      await createNote(workspaceDir, name)
+      if (selectedTemplateIdx >= 0 && selectedTemplateIdx < templates.length) {
+        const tpl = templates[selectedTemplateIdx]
+        const vars = getBuiltInVars(name.replace(/\.md$/, ''))
+        const content = applyTemplate(tpl.content, vars)
+        await createNoteFromTemplate(workspaceDir, name, content)
+      } else {
+        await createNote(workspaceDir, name)
+      }
     } catch (err: any) {
       console.error('创建文件失败:', err)
     }
     setShowNewFileDialog(false)
-  }, [newFileName, workspaceDir, createNote])
+  }, [newFileName, workspaceDir, createNote, createNoteFromTemplate, selectedTemplateIdx, templates])
 
   const isSplitMode = viewMode === 'split' && syncScroll
 
@@ -274,6 +310,37 @@ function App(): React.JSX.Element {
               }}
               autoFocus
             />
+            {templates.length > 0 && (
+              <div className="template-section">
+                <div className="template-label">模板</div>
+                <div className="template-list">
+                  <button
+                    className={`template-item ${selectedTemplateIdx === -1 ? 'template-item-active' : ''}`}
+                    onClick={() => setSelectedTemplateIdx(-1)}
+                  >
+                    <span className="template-icon"><IconTemplateBlank size={16} /></span>
+                    <span>空白笔记</span>
+                  </button>
+                  {templates.map((tpl, idx) => (
+                    <button
+                      key={tpl.name}
+                      className={`template-item ${selectedTemplateIdx === idx ? 'template-item-active' : ''}`}
+                      onClick={() => setSelectedTemplateIdx(idx)}
+                    >
+                      <span className="template-icon">
+                        {tpl.name === '日记' && <IconTemplateDiary size={16} />}
+                        {tpl.name === '会议记录' && <IconTemplateMeeting size={16} />}
+                        {tpl.name === '读书笔记' && <IconTemplateBook size={16} />}
+                        {!['日记', '会议记录', '读书笔记'].includes(tpl.name) && (
+                          <IconTemplateCustom size={16} />
+                        )}
+                      </span>
+                      <span>{tpl.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="dialog-actions">
               <button
                 className="dialog-btn dialog-btn-cancel"

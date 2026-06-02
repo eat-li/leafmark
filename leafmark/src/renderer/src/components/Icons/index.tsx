@@ -387,6 +387,77 @@ export function IconOutline(props: IconProps): React.ReactNode {
   )
 }
 
+// 模板图标 — 空白笔记
+export function IconTemplateBlank(props: IconProps): React.ReactNode {
+  return wrap(
+    props,
+    <>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+    </>
+  )
+}
+
+// 模板图标 — 日记（日历）
+export function IconTemplateDiary(props: IconProps): React.ReactNode {
+  return wrap(
+    props,
+    <>
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+      <line x1="8" y1="14" x2="8" y2="14.01" />
+      <line x1="12" y1="14" x2="12" y2="14.01" />
+      <line x1="16" y1="14" x2="16" y2="14.01" />
+      <line x1="8" y1="18" x2="8" y2="18.01" />
+      <line x1="12" y1="18" x2="12" y2="18.01" />
+    </>
+  )
+}
+
+// 模板图标 — 会议记录（剪贴板）
+export function IconTemplateMeeting(props: IconProps): React.ReactNode {
+  return wrap(
+    props,
+    <>
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+      <rect x="8" y="2" width="8" height="4" rx="1" />
+      <line x1="8" y1="11" x2="16" y2="11" />
+      <line x1="8" y1="15" x2="13" y2="15" />
+    </>
+  )
+}
+
+// 模板图标 — 读书笔记（书本）
+export function IconTemplateBook(props: IconProps): React.ReactNode {
+  return wrap(
+    props,
+    <>
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+      <line x1="8" y1="7" x2="16" y2="7" />
+      <line x1="8" y1="11" x2="14" y2="11" />
+    </>
+  )
+}
+
+// 模板图标 — 自定义模板（文件 + 小星标）
+export function IconTemplateCustom(props: IconProps): React.ReactNode {
+  return wrap(
+    props,
+    <>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <circle cx="15" cy="15" r="2" />
+      <line x1="15" y1="13" x2="15" y2="13.01" />
+      <line x1="15" y1="17" x2="15" y2="17.01" />
+      <line x1="13" y1="15" x2="13" y2="15.01" />
+      <line x1="17" y1="15" x2="17" y2="15.01" />
+    </>
+  )
+}
+
 // 热力图图标 — 小方块网格
 export function IconHeatmap(props: IconProps): React.ReactNode {
   return wrap(
@@ -404,4 +475,3 @@ export function IconHeatmap(props: IconProps): React.ReactNode {
     </>
   )
 }
-

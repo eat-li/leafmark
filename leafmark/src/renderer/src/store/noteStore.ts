@@ -84,6 +84,7 @@ interface NoteState {
   closeTab: (path: string) => void
   setActiveTab: (path: string) => void
   createNote: (dirPath: string, fileName: string) => Promise<void>
+  createNoteFromTemplate: (dirPath: string, fileName: string, content: string) => Promise<void>
   createFolder: (dirPath: string, folderName: string) => Promise<void>
   deleteItem: (path: string) => Promise<void>
   renameItem: (oldPath: string, newName: string) => Promise<void>
@@ -244,6 +245,14 @@ export const useNoteStore = create<NoteState>()(
         await get().openFile(filePath, name)
       },
 
+      createNoteFromTemplate: async (dirPath, fileName, content) => {
+        const name = fileName.endsWith('.md') ? fileName : `${fileName}.md`
+        const filePath = `${dirPath}/${name}`
+        await fs.writeFile(filePath, content)
+        await get().refreshFileTree()
+        await get().openFile(filePath, name)
+      },
+
       createFolder: async (dirPath, folderName) => {
         const folderPath = `${dirPath}/${folderName}`
         await fs.createFolder(folderPath)
@@ -346,9 +355,7 @@ export const useNoteStore = create<NoteState>()(
         const fileNames = openTabs.map((t) => t.name)
         const prev = writingStats[key]
         // 合并文件列表（去重）
-        const filesEdited = prev
-          ? [...new Set([...prev.filesEdited, ...fileNames])]
-          : fileNames
+        const filesEdited = prev ? [...new Set([...prev.filesEdited, ...fileNames])] : fileNames
         set({
           writingStats: {
             ...writingStats,

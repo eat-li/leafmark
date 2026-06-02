@@ -1,7 +1,8 @@
 import { memo, useState, useCallback, useMemo } from 'react'
 import type { FileEntry } from '../../store/noteStore'
 import { useNoteStore, IMAGE_EXTENSIONS } from '../../store/noteStore'
-import { shell } from '../../api/electron'
+import { shell, fs } from '../../api/electron'
+import { saveAsTemplate } from '../../utils/template'
 import { IconChevronDown, IconChevronRight, IconFile, IconImageFile } from '../Icons'
 import styles from './FileTreeNode.module.css'
 
@@ -21,6 +22,8 @@ function FileTreeNode({ node, level }: FileTreeNodeProps) {
   const [inputMode, setInputMode] = useState<'file' | 'folder' | null>(null)
   const [inputValue, setInputValue] = useState('')
   const [newTagInput, setNewTagInput] = useState('')
+  const [showSaveAsTemplate, setShowSaveAsTemplate] = useState(false)
+  const [templateName, setTemplateName] = useState('')
 
   const isActive = useNoteStore((s) => s.activeTabPath === node.path)
   const fileTags = useNoteStore((s) => s.tags[node.path] || EMPTY_TAGS)
@@ -85,6 +88,28 @@ function FileTreeNode({ node, level }: FileTreeNodeProps) {
       }
     }
   }, [node.name, node.path, closeMenu])
+
+  const handleSaveAsTemplate = useCallback(() => {
+    closeMenu()
+    setTemplateName(node.name.replace(/\.md$/, ''))
+    setShowSaveAsTemplate(true)
+  }, [closeMenu, node.name])
+
+  const handleSaveAsTemplateConfirm = useCallback(async () => {
+    const name = templateName.trim()
+    if (!name) {
+      setShowSaveAsTemplate(false)
+      return
+    }
+    try {
+      const content = await fs.readFile(node.path)
+      const workspaceDir = useNoteStore.getState().workspaceDir
+      await saveAsTemplate(workspaceDir, name, content)
+      setShowSaveAsTemplate(false)
+    } catch (e: any) {
+      alert(e.message || '保存模板失败')
+    }
+  }, [templateName, node.path])
 
   const startNewFile = useCallback(() => {
     closeMenu()
@@ -173,12 +198,16 @@ function FileTreeNode({ node, level }: FileTreeNodeProps) {
             ) : (
               <IconChevronRight size={12} />
             )
-          ) : (() => {
-            const ext = '.' + node.name.split('.').pop()?.toLowerCase()
-            return IMAGE_EXTENSIONS.includes(ext)
-              ? <IconImageFile size={14} />
-              : <IconFile size={14} />
-          })()}
+          ) : (
+            (() => {
+              const ext = '.' + node.name.split('.').pop()?.toLowerCase()
+              return IMAGE_EXTENSIONS.includes(ext) ? (
+                <IconImageFile size={14} />
+              ) : (
+                <IconFile size={14} />
+              )
+            })()
+          )}
         </span>
         {renaming ? (
           <input
@@ -229,6 +258,9 @@ function FileTreeNode({ node, level }: FileTreeNodeProps) {
               </>
             )}
             <button onClick={handleOpenTagPanel}>标签</button>
+            {node.type === 'file' && node.name.endsWith('.md') && (
+              <button onClick={handleSaveAsTemplate}>保存为模板</button>
+            )}
             <div className={styles.menuDivider} />
             <button onClick={handleRename}>重命名</button>
             <button onClick={handleDelete} className={styles.danger}>
@@ -285,6 +317,24 @@ function FileTreeNode({ node, level }: FileTreeNodeProps) {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {showSaveAsTemplate && (
+          <div className={styles.tagPanel} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.tagPanelTitle}>保存为模板</div>
+            <input
+              className={styles.tagInput}
+              placeholder="模板名称..."
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSaveAsTemplateConfirm()
+                if (e.key === 'Escape') setShowSaveAsTemplate(false)
+              }}
+              onBlur={handleSaveAsTemplateConfirm}
+              autoFocus
+            />
           </div>
         )}
       </div>
