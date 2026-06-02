@@ -48,10 +48,13 @@ export default function OutlinePanel({ onScrollToLine }: OutlinePanelProps) {
     return parseHeadings(activeTab.content)
   }, [activeTab?.content])
 
-  const handleClick = useCallback((line: number) => {
-    onScrollToLine?.(line)
-    setShowOutline(false)
-  }, [onScrollToLine, setShowOutline])
+  const handleClick = useCallback(
+    (line: number) => {
+      onScrollToLine?.(line)
+      setShowOutline(false)
+    },
+    [onScrollToLine, setShowOutline]
+  )
 
   if (!showOutline) return null
 

@@ -43,7 +43,8 @@ const electronAPI = {
 
   // 导出
   exportPDF: (html: string, defaultName: string) => ipcRenderer.invoke('export:pdf', html, defaultName),
-  exportHTML: (html: string, defaultName: string) => ipcRenderer.invoke('export:html', html, defaultName)
+  exportHTML: (html: string, defaultName: string) => ipcRenderer.invoke('export:html', html, defaultName),
+
 }
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI)

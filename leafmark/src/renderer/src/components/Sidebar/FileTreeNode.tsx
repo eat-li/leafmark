@@ -1,8 +1,8 @@
 import { memo, useState, useCallback, useMemo } from 'react'
 import type { FileEntry } from '../../store/noteStore'
-import { useNoteStore } from '../../store/noteStore'
+import { useNoteStore, IMAGE_EXTENSIONS } from '../../store/noteStore'
 import { shell } from '../../api/electron'
-import { IconChevronDown, IconChevronRight, IconFile } from '../Icons'
+import { IconChevronDown, IconChevronRight, IconFile, IconImageFile } from '../Icons'
 import styles from './FileTreeNode.module.css'
 
 interface FileTreeNodeProps {
@@ -172,9 +172,12 @@ function FileTreeNode({ node, level }: FileTreeNodeProps) {
             ) : (
               <IconChevronRight size={12} />
             )
-          ) : (
-            <IconFile size={14} />
-          )}
+          ) : (() => {
+            const ext = '.' + node.name.split('.').pop()?.toLowerCase()
+            return IMAGE_EXTENSIONS.includes(ext)
+              ? <IconImageFile size={14} />
+              : <IconFile size={14} />
+          })()}
         </span>
         {renaming ? (
           <input

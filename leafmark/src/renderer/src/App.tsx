@@ -11,6 +11,7 @@ import StatusBar from './components/StatusBar/StatusBar'
 import SearchPanel from './components/Search/SearchPanel'
 import SettingsPanel from './components/Settings/SettingsPanel'
 import OutlinePanel from './components/Outline/OutlinePanel'
+import HeatmapPanel from './components/Heatmap/HeatmapPanel'
 
 function App(): React.JSX.Element {
   const sidebarVisible = useNoteStore((s) => s.sidebarVisible)
@@ -25,6 +26,8 @@ function App(): React.JSX.Element {
   const workspaceDir = useNoteStore((s) => s.workspaceDir)
   const createNote = useNoteStore((s) => s.createNote)
   const openFile = useNoteStore((s) => s.openFile)
+  const showHeatmap = useNoteStore((s) => s.showHeatmap)
+  const setShowHeatmap = useNoteStore((s) => s.setShowHeatmap)
 
   // 新建文件弹窗状态
   const [showNewFileDialog, setShowNewFileDialog] = useState(false)
@@ -97,10 +100,14 @@ function App(): React.JSX.Element {
             console.error('打开文件失败:', err)
           })
       }
+      if (ctrl && e.key === 'h') {
+        e.preventDefault()
+        setShowHeatmap(!useNoteStore.getState().showHeatmap)
+      }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [saveFile, saveAllFiles, createNote, openFile])
+  }, [saveFile, saveAllFiles, createNote, openFile, setShowHeatmap])
 
   // 自动保存定时器
   useEffect(() => {
@@ -206,6 +213,7 @@ function App(): React.JSX.Element {
       <SearchPanel />
       <SettingsPanel />
       <OutlinePanel onScrollToLine={(line) => scrollToLineRef.current?.(line)} />
+      {showHeatmap && <HeatmapPanel />}
 
       {/* 新建文件弹窗 */}
       {showNewFileDialog && (

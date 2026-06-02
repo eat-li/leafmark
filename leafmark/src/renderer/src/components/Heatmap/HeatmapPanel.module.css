@@ -1,0 +1,186 @@
+.panel {
+  width: 320px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border-color);
+  padding: 16px;
+  box-sizing: border-box;
+  font-size: 12px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.closeBtn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.closeBtn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* — 统计摘要 — */
+.summary {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+}
+
+.statItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 6px;
+}
+
+.statItem + .statItem {
+  border-left: 1px solid var(--border-light);
+}
+
+.statValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent-color);
+  line-height: 1.2;
+}
+
+.statLabel {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* — 网格容器 — */
+.gridContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.monthRow {
+  display: flex;
+  margin-bottom: 2px;
+}
+
+.monthLabels {
+  display: grid;
+  grid-template-columns: repeat(53, 11px);
+  gap: 2px;
+  position: relative;
+}
+
+.monthLabel {
+  font-size: 9px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.gridBody {
+  display: flex;
+}
+
+.weekdayGutter {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-right: 4px;
+  width: 16px;
+}
+
+.weekday {
+  height: 11px;
+  display: flex;
+  align-items: center;
+  font-size: 9px;
+  color: var(--text-faint);
+}
+
+/* 只显示奇数位周几标签 */
+.weekday:nth-child(even) {
+  visibility: hidden;
+}
+
+.grid {
+  display: flex;
+  gap: 2px;
+}
+
+.week {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cell {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  background: var(--bg-tertiary);
+}
+
+.cell:hover {
+  transform: scale(1.4);
+  box-shadow: 0 0 0 1px var(--accent-color);
+  z-index: 2;
+  position: relative;
+}
+
+.cell.today {
+  box-shadow: 0 0 0 1px var(--accent-color);
+}
+
+.cell.active {
+  /* 有数据就有颜色，不使用默认灰 */
+}
+
+/* — 图例 — */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 10px;
+  justify-content: center;
+}
+
+.legendCell {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+}
+
+.legendLabel {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin: 0 4px;
+}

@@ -15,25 +15,37 @@ export interface OpenTab {
   content: string
   originalContent: string
   modified: boolean
+  fileType?: 'markdown' | 'image'
 }
 
 export type ViewMode = 'edit' | 'split' | 'preview'
 export type Theme = 'light' | 'dark' | 'system'
 
-// 标签颜色调色板（低饱和度有机风格）
+// 支持预览的图片扩展名
+export const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp']
+
+// 写作热力图 — 每日统计数据
+export interface DayStats {
+  /** 当日编辑过的文件去重列表 */
+  filesEdited: string[]
+  /** 保存时所有已打开笔记的总字符数，用于衡量当日写作量 */
+  totalChars: number
+}
+
+// 标签颜色调色板（匹配 Indigo Ink 配色）
 export const TAG_PALETTE = [
-  '#b85c5c',
-  '#c4885c',
-  '#b8a44c',
-  '#6b8f6b',
-  '#5c8f8f',
-  '#5c7fb8',
-  '#8b6b9e',
-  '#9e6b7b',
-  '#7b8f5c',
-  '#8b7355',
-  '#6b7b8f',
-  '#a08060'
+  '#5062d0',
+  '#6b83c4',
+  '#3d8f7b',
+  '#c06d8e',
+  '#d4934a',
+  '#4da5a5',
+  '#7b6fce',
+  '#d15d5d',
+  '#47946b',
+  '#b868d0',
+  '#5b8ec4',
+  '#d0806a'
 ]
 
 interface NoteState {
@@ -49,6 +61,9 @@ interface NoteState {
   showSearch: boolean
   showSettings: boolean
   showOutline: boolean
+  showHeatmap: boolean
+  /** 写作热力图数据，key 为 "YYYY-MM-DD" */
+  writingStats: Record<string, DayStats>
   autoSave: boolean
   autoSaveInterval: number
   closeToTray: boolean
@@ -82,6 +97,9 @@ interface NoteState {
   setShowSearch: (show: boolean) => void
   setShowSettings: (show: boolean) => void
   setShowOutline: (show: boolean) => void
+  setShowHeatmap: (show: boolean) => void
+  /** 更新今日写作统计（在保存文件时自动调用） */
+  updateWritingStats: () => void
   setAutoSave: (enabled: boolean) => void
   setAutoSaveInterval: (seconds: number) => void
   setCloseToTray: (enabled: boolean) => void
@@ -108,6 +126,8 @@ export const useNoteStore = create<NoteState>()(
       showSearch: false,
       showSettings: false,
       showOutline: false,
+      showHeatmap: false,
+      writingStats: {},
       autoSave: false,
       autoSaveInterval: 30,
       closeToTray: false,
@@ -141,13 +161,28 @@ export const useNoteStore = create<NoteState>()(
           set({ activeTabPath: filePath })
           return
         }
-        const content = await fs.readFile(filePath)
+        const ext = '.' + filePath.split('.').pop()?.toLowerCase()
+        const isImage = IMAGE_EXTENSIONS.includes(ext)
+
+        let content: string
+        let fileType: 'markdown' | 'image' = 'markdown'
+
+        if (isImage) {
+          content = (await fs.readImageAsDataUrl(filePath)) || ''
+          fileType = 'image'
+          // 图片文件自动切换到编辑模式（隐藏预览面板）
+          set({ viewMode: 'edit' })
+        } else {
+          content = await fs.readFile(filePath)
+        }
+
         const newTab: OpenTab = {
           path: filePath,
           name,
           content,
           originalContent: content,
-          modified: false
+          modified: false,
+          fileType
         }
         set({
           openTabs: [...openTabs, newTab],
@@ -175,6 +210,7 @@ export const useNoteStore = create<NoteState>()(
             t.path === tab.path ? { ...t, originalContent: t.content, modified: false } : t
           )
         })
+        get().updateWritingStats()
       },
 
       saveAllFiles: async () => {
@@ -184,6 +220,7 @@ export const useNoteStore = create<NoteState>()(
         set({
           openTabs: openTabs.map((t) => ({ ...t, originalContent: t.content, modified: false }))
         })
+        get().updateWritingStats()
       },
 
       closeTab: (path) => {
@@ -297,6 +334,29 @@ export const useNoteStore = create<NoteState>()(
 
       setShowOutline: (show) => set({ showOutline: show }),
 
+      setShowHeatmap: (show) => set({ showHeatmap: show }),
+
+      updateWritingStats: () => {
+        const { openTabs, writingStats } = get()
+        // 当日键 "YYYY-MM-DD"
+        const today = new Date()
+        const key = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+        // 收集所有已打开文件的字符总数
+        const totalChars = openTabs.reduce((sum, t) => sum + t.content.length, 0)
+        const fileNames = openTabs.map((t) => t.name)
+        const prev = writingStats[key]
+        // 合并文件列表（去重）
+        const filesEdited = prev
+          ? [...new Set([...prev.filesEdited, ...fileNames])]
+          : fileNames
+        set({
+          writingStats: {
+            ...writingStats,
+            [key]: { filesEdited, totalChars }
+          }
+        })
+      },
+
       setAutoSave: (enabled) => set({ autoSave: enabled }),
 
       setAutoSaveInterval: (seconds) => set({ autoSaveInterval: seconds }),
@@ -359,7 +419,8 @@ export const useNoteStore = create<NoteState>()(
         syncScroll: state.syncScroll,
         typewriterMode: state.typewriterMode,
         tags: state.tags,
-        tagColors: state.tagColors
+        tagColors: state.tagColors,
+        writingStats: state.writingStats
       })
     }
   )

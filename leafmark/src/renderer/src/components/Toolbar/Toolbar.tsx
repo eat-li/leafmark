@@ -1,6 +1,6 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import MarkdownIt from 'markdown-it'
-import { useNoteStore } from '../../store/noteStore'
+import { useNoteStore, IMAGE_EXTENSIONS } from '../../store/noteStore'
 import { exportFile } from '../../api/electron'
 import {
   IconBold,
@@ -24,7 +24,8 @@ import {
   IconSyncScroll,
   IconTypewriter,
   IconExport,
-  IconOutline
+  IconOutline,
+  IconHeatmap
 } from '../Icons'
 import styles from './Toolbar.module.css'
 
@@ -169,10 +170,21 @@ export default function Toolbar({ onInsertFormat }: ToolbarProps) {
   const setShowSearch = useNoteStore((s) => s.setShowSearch)
   const setShowSettings = useNoteStore((s) => s.setShowSettings)
   const setShowOutline = useNoteStore((s) => s.setShowOutline)
+  const setShowHeatmap = useNoteStore((s) => s.setShowHeatmap)
   const syncScroll = useNoteStore((s) => s.syncScroll)
   const toggleSyncScroll = useNoteStore((s) => s.toggleSyncScroll)
   const typewriterMode = useNoteStore((s) => s.typewriterMode)
   const toggleTypewriterMode = useNoteStore((s) => s.toggleTypewriterMode)
+  const openTabs = useNoteStore((s) => s.openTabs)
+  const activeTabPath = useNoteStore((s) => s.activeTabPath)
+
+  const isImageFile = useMemo(() => {
+    const tab = openTabs.find((t) => t.path === activeTabPath)
+    if (!tab) return false
+    if (tab.fileType === 'image') return true
+    const ext = '.' + tab.path.split('.').pop()?.toLowerCase()
+    return IMAGE_EXTENSIONS.includes(ext)
+  }, [openTabs, activeTabPath])
 
   const handleExport = useCallback(async (format: 'pdf' | 'html') => {
     const state = useNoteStore.getState()
@@ -223,31 +235,35 @@ export default function Toolbar({ onInsertFormat }: ToolbarProps) {
 
       <div className={styles.separator} />
 
-      <div className={styles.group}>
-        <button
-          className={`${styles.btn} ${viewMode === 'edit' ? styles.active : ''}`}
-          onClick={() => setViewMode('edit')}
-          title="编辑模式"
-        >
-          <IconEdit size={14} />
-        </button>
-        <button
-          className={`${styles.btn} ${viewMode === 'split' ? styles.active : ''}`}
-          onClick={() => setViewMode('split')}
-          title="分栏模式"
-        >
-          <IconSplit size={14} />
-        </button>
-        <button
-          className={`${styles.btn} ${viewMode === 'preview' ? styles.active : ''}`}
-          onClick={() => setViewMode('preview')}
-          title="预览模式"
-        >
-          <IconPreview size={14} />
-        </button>
-      </div>
+      {!isImageFile && (
+        <>
+          <div className={styles.group}>
+            <button
+              className={`${styles.btn} ${viewMode === 'edit' ? styles.active : ''}`}
+              onClick={() => setViewMode('edit')}
+              title="编辑模式"
+            >
+              <IconEdit size={14} />
+            </button>
+            <button
+              className={`${styles.btn} ${viewMode === 'split' ? styles.active : ''}`}
+              onClick={() => setViewMode('split')}
+              title="分栏模式"
+            >
+              <IconSplit size={14} />
+            </button>
+            <button
+              className={`${styles.btn} ${viewMode === 'preview' ? styles.active : ''}`}
+              onClick={() => setViewMode('preview')}
+              title="预览模式"
+            >
+              <IconPreview size={14} />
+            </button>
+          </div>
 
-      <div className={styles.separator} />
+          <div className={styles.separator} />
+        </>
+      )}
 
       <div className={styles.group}>
         <button className={styles.btn} onClick={() => setFontSize(fontSize - 1)} title="减小字号">
@@ -283,6 +299,9 @@ export default function Toolbar({ onInsertFormat }: ToolbarProps) {
       <div className={styles.group}>
         <button className={styles.btn} onClick={() => setShowOutline(true)} title="大纲">
           <IconOutline size={14} />
+        </button>
+        <button className={styles.btn} onClick={() => setShowHeatmap(true)} title="写作热力图 (Ctrl+H)">
+          <IconHeatmap size={14} />
         </button>
       </div>
 

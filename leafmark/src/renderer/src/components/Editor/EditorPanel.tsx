@@ -7,8 +7,9 @@ import { defaultKeymap, indentWithTab } from '@codemirror/commands'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { syntaxHighlighting, defaultHighlightStyle, HighlightStyle } from '@codemirror/language'
 import { tags } from '@lezer/highlight'
-import { useNoteStore } from '../../store/noteStore'
+import { useNoteStore, IMAGE_EXTENSIONS } from '../../store/noteStore'
 import { clipboard } from '../../api/electron'
+import ImagePreview from '../ImagePreview/ImagePreview'
 import styles from './EditorPanel.module.css'
 
 // 自定义浅色主题 — Indigo Ink
@@ -490,6 +491,18 @@ export default function EditorPanel({
           <span>Ctrl+N</span> 新建 · <span>Ctrl+O</span> 打开
         </div>
       </div>
+    )
+  }
+
+  // 图片文件：渲染图片预览组件
+  const fileExt = '.' + activeTab.path.split('.').pop()?.toLowerCase()
+  if (activeTab.fileType === 'image' || IMAGE_EXTENSIONS.includes(fileExt)) {
+    return (
+      <ImagePreview
+        dataUrl={activeTab.content}
+        fileName={activeTab.name}
+        filePath={activeTab.path}
+      />
     )
   }
 

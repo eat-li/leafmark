@@ -115,3 +115,7 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+app.on('quit', () => {
+  // 清理资源
+})

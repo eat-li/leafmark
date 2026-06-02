@@ -290,6 +290,17 @@ export function IconFile(props: IconProps): React.ReactNode {
   )
 }
 
+export function IconImageFile(props: IconProps): React.ReactNode {
+  return wrap(
+    props,
+    <>
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <polyline points="21 15 16 10 5 21" />
+    </>
+  )
+}
+
 export function IconClose(props: IconProps): React.ReactNode {
   return wrap(
     props,
@@ -375,3 +386,22 @@ export function IconOutline(props: IconProps): React.ReactNode {
     </>
   )
 }
+
+// 热力图图标 — 小方块网格
+export function IconHeatmap(props: IconProps): React.ReactNode {
+  return wrap(
+    props,
+    <>
+      <rect x="3" y="3" width="4" height="4" rx="1" />
+      <rect x="9" y="3" width="4" height="4" rx="1" />
+      <rect x="15" y="3" width="4" height="4" rx="1" />
+      <rect x="3" y="9" width="4" height="4" rx="1" />
+      <rect x="9" y="9" width="4" height="4" rx="1" />
+      <rect x="15" y="9" width="4" height="4" rx="1" />
+      <rect x="3" y="15" width="4" height="4" rx="1" />
+      <rect x="9" y="15" width="4" height="4" rx="1" />
+      <rect x="15" y="15" width="4" height="4" rx="1" />
+    </>
+  )
+}
+

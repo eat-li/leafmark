@@ -59,3 +59,15 @@ export const exportFile = {
   pdf: (html: string, defaultName: string): Promise<boolean> => api.exportPDF(html, defaultName),
   html: (html: string, defaultName: string): Promise<boolean> => api.exportHTML(html, defaultName)
 }
+
+/** 从 localStorage 读取工作区目录 */
+export function getWorkspaceDir(): string {
+  try {
+    const raw = localStorage.getItem('leafmark-storage')
+    if (raw) {
+      const state = JSON.parse(raw)
+      return state?.state?.workspaceDir || ''
+    }
+  } catch {/* */}
+  return ''
+}

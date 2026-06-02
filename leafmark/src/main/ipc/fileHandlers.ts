@@ -10,6 +10,9 @@ interface FileEntry {
   children?: FileEntry[]
 }
 
+// 支持在文件树中显示的图片扩展名
+const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp']
+
 async function readDirTree(dirPath: string, depth = 10): Promise<FileEntry[]> {
   if (depth <= 0) return []
   const entries = await fsp.readdir(dirPath, { withFileTypes: true })
@@ -24,8 +27,11 @@ async function readDirTree(dirPath: string, depth = 10): Promise<FileEntry[]> {
         type: 'directory',
         children: await readDirTree(path.join(dirPath, entry.name), depth - 1)
       })
-    } else if (entry.name.endsWith('.md')) {
-      result.push({ name: entry.name, path: fullPath, type: 'file' })
+    } else {
+      const ext = path.extname(entry.name).toLowerCase()
+      if (ext === '.md' || IMAGE_EXTENSIONS.includes(ext)) {
+        result.push({ name: entry.name, path: fullPath, type: 'file' })
+      }
     }
   }
   result.sort((a, b) => {
