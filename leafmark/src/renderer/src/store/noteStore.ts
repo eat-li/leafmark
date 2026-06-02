@@ -32,20 +32,20 @@ export interface DayStats {
   totalChars: number
 }
 
-// 标签颜色调色板（匹配 Indigo Ink 配色）
+// 标签颜色调色板（匹配 Amber & Ash 配色）
 export const TAG_PALETTE = [
-  '#5062d0',
-  '#6b83c4',
-  '#3d8f7b',
-  '#c06d8e',
-  '#d4934a',
-  '#4da5a5',
-  '#7b6fce',
-  '#d15d5d',
-  '#47946b',
-  '#b868d0',
-  '#5b8ec4',
-  '#d0806a'
+  '#c07a2a',
+  '#5a7a9e',
+  '#4a8c5c',
+  '#a85a3a',
+  '#7a6b8a',
+  '#c44d3e',
+  '#5e8a6e',
+  '#8a6e3a',
+  '#6a7a5a',
+  '#9e5a6e',
+  '#4a7a8a',
+  '#7a5a4a'
 ]
 
 interface NoteState {

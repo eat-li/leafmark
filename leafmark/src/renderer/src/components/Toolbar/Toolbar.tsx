@@ -39,24 +39,24 @@ function buildExportHTML(title: string, body: string): string {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${title}</title>
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif; max-width: 760px; margin: 0 auto; padding: 32px; line-height: 1.85; color: #1b1f3b; font-size: 15px; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif; max-width: 760px; margin: 0 auto; padding: 32px; line-height: 1.85; color: #2c2a26; font-size: 15px; }
   h1, h2, h3, h4, h5, h6 { margin: 1.6em 0 0.6em; font-weight: 700; line-height: 1.3; }
-  h1 { font-size: 2em; padding-bottom: 0.35em; border-bottom: 2px solid #5062d0; color: #5062d0; }
-  h2 { font-size: 1.5em; padding-bottom: 0.3em; border-bottom: 1px solid #dce0ea; }
+  h1 { font-size: 2em; padding-bottom: 0.35em; border-bottom: 2px solid #c07a2a; color: #c07a2a; }
+  h2 { font-size: 1.5em; padding-bottom: 0.3em; border-bottom: 1px solid #ddd9cf; }
   h3 { font-size: 1.25em; }
   p { margin: 0.9em 0; }
-  a { color: #5062d0; text-decoration: none; }
-  code { background: #e4e6f0; padding: 2px 7px; border-radius: 3px; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.88em; color: #5062d0; border: 1px solid #dce0ea; }
-  pre { margin: 1.2em 0; border-radius: 8px; overflow-x: auto; border: 1px solid #dce0ea; }
-  pre code { display: block; padding: 18px 20px; background: #e4e6f0; color: #1b1f3b; border: none; font-size: 0.87em; line-height: 1.6; }
-  blockquote { margin: 1em 0; padding: 0.6em 1.2em; border-left: 3px solid #5062d0; background: rgba(80,98,208,0.06); color: #4e5475; border-radius: 0 5px 5px 0; }
+  a { color: #c07a2a; text-decoration: none; }
+  code { background: #e6e4dc; padding: 2px 7px; border-radius: 3px; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.88em; color: #c07a2a; border: 1px solid #ddd9cf; }
+  pre { margin: 1.2em 0; border-radius: 8px; overflow-x: auto; border: 1px solid #ddd9cf; }
+  pre code { display: block; padding: 18px 20px; background: #e6e4dc; color: #2c2a26; border: none; font-size: 0.87em; line-height: 1.6; }
+  blockquote { margin: 1em 0; padding: 0.6em 1.2em; border-left: 3px solid #c07a2a; background: rgba(192,122,42,0.06); color: #5e5a52; border-radius: 0 5px 5px 0; }
   ul, ol { margin: 0.9em 0; padding-left: 1.8em; }
   li { margin: 0.35em 0; }
   img { max-width: 100%; border-radius: 8px; margin: 0.5em 0; }
   table { width: 100%; border-collapse: collapse; margin: 1.2em 0; font-size: 0.95em; }
-  th, td { border: 1px solid #dce0ea; padding: 8px 14px; text-align: left; }
-  th { background: #eeeff6; font-weight: 600; }
-  hr { border: none; height: 1px; background: linear-gradient(to right, transparent, #dce0ea, transparent); margin: 2.5em 0; }
+  th, td { border: 1px solid #ddd9cf; padding: 8px 14px; text-align: left; }
+  th { background: #efeee8; font-weight: 600; }
+  hr { border: none; height: 1px; background: linear-gradient(to right, transparent, #ddd9cf, transparent); margin: 2.5em 0; }
   input[type="checkbox"] { margin-right: 6px; }
   .katex-block { margin: 1em 0; text-align: center; overflow-x: auto; }
   @media print { body { padding: 0; } }

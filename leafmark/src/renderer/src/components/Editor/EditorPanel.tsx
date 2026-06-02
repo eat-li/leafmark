@@ -12,12 +12,12 @@ import { clipboard } from '../../api/electron'
 import ImagePreview from '../ImagePreview/ImagePreview'
 import styles from './EditorPanel.module.css'
 
-// 自定义浅色主题 — Indigo Ink
+// 自定义浅色主题 — Amber & Ash
 const leafmarkLightTheme = EditorView.theme({
   '&': {
     height: '100%',
-    color: '#1b1f3b',
-    backgroundColor: '#f5f6fb'
+    color: '#2c2a26',
+    backgroundColor: '#f7f5f0'
   },
   '.cm-scroller': {
     overflow: 'auto',
@@ -26,110 +26,110 @@ const leafmarkLightTheme = EditorView.theme({
   },
   '.cm-content': {
     padding: '16px 0',
-    caretColor: '#5062d0'
+    caretColor: '#c07a2a'
   },
   '.cm-line': {
     padding: '0 20px'
   },
   '.cm-cursor, .cm-dropCursor': {
-    borderLeftColor: '#5062d0',
+    borderLeftColor: '#c07a2a',
     borderLeftWidth: '2px'
   },
   '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': {
-    backgroundColor: 'rgba(80, 98, 208, 0.12) !important'
+    backgroundColor: 'rgba(192, 122, 42, 0.12) !important'
   },
   '.cm-activeLine': {
-    backgroundColor: 'rgba(80, 98, 208, 0.04)'
+    backgroundColor: 'rgba(192, 122, 42, 0.04)'
   },
   '.cm-gutters': {
-    backgroundColor: '#eeeff6',
-    color: '#7f85a5',
+    backgroundColor: '#efeee8',
+    color: '#8a857b',
     border: 'none'
   },
   '.cm-activeLineGutter': {
     backgroundColor: 'transparent',
-    color: '#5062d0'
+    color: '#c07a2a'
   },
   '.cm-foldPlaceholder': {
-    backgroundColor: '#e4e6f0',
+    backgroundColor: '#e6e4dc',
     border: 'none',
-    color: '#4e5475'
+    color: '#5e5a52'
   },
   '.cm-tooltip': {
-    backgroundColor: '#fafbff',
-    border: '1px solid #dce0ea',
+    backgroundColor: '#faf9f6',
+    border: '1px solid #ddd9cf',
     borderRadius: '6px',
-    boxShadow: '0 4px 12px rgba(10, 15, 40, 0.07)'
+    boxShadow: '0 4px 12px rgba(40, 30, 15, 0.08)'
   },
   '.cm-tooltip-autocomplete ul li': {
     padding: '4px 8px'
   },
   '.cm-tooltip-autocomplete ul li[aria-selected]': {
-    backgroundColor: 'rgba(80, 98, 208, 0.1)',
-    color: '#1b1f3b'
+    backgroundColor: 'rgba(192, 122, 42, 0.1)',
+    color: '#2c2a26'
   },
   '.cm-searchMatch': {
-    backgroundColor: 'rgba(80, 98, 208, 0.2)',
-    outline: '1px solid rgba(80, 98, 208, 0.35)'
+    backgroundColor: 'rgba(192, 122, 42, 0.2)',
+    outline: '1px solid rgba(192, 122, 42, 0.35)'
   },
   '.cm-searchMatch.cm-searchMatch-selected': {
-    backgroundColor: 'rgba(80, 98, 208, 0.35)'
+    backgroundColor: 'rgba(192, 122, 42, 0.35)'
   }
 })
 
-// Indigo Ink — 浅色语法高亮
+// Amber & Ash — 浅色语法高亮
 const leafmarkLightHighlight = HighlightStyle.define([
-  { tag: tags.heading, color: '#1b1f3b', fontWeight: '700' },
-  { tag: tags.heading1, fontSize: '1.4em', color: '#5062d0' },
-  { tag: tags.heading2, fontSize: '1.2em', color: '#3d4a9e' },
+  { tag: tags.heading, color: '#2c2a26', fontWeight: '700' },
+  { tag: tags.heading1, fontSize: '1.4em', color: '#c07a2a' },
+  { tag: tags.heading2, fontSize: '1.2em', color: '#a86a22' },
   { tag: tags.heading3, fontSize: '1.05em' },
-  { tag: tags.strong, fontWeight: '700', color: '#1b1f3b' },
-  { tag: tags.emphasis, fontStyle: 'italic', color: '#4e5475' },
-  { tag: tags.strikethrough, textDecoration: 'line-through', color: '#7f85a5' },
-  { tag: tags.link, color: '#5062d0', textDecoration: 'underline' },
-  { tag: tags.url, color: '#4e5475' },
-  { tag: tags.atom, color: '#5062d0' },
-  { tag: tags.bool, color: '#5062d0' },
-  { tag: tags.labelName, color: '#4e5475' },
-  { tag: tags.string, color: '#338a4e' },
-  { tag: tags.special(tags.string), color: '#338a4e' },
-  { tag: tags.regexp, color: '#c04d8e' },
-  { tag: tags.quote, color: '#4e5475', fontStyle: 'italic' },
-  { tag: tags.comment, color: '#7f85a5', fontStyle: 'italic' },
-  { tag: tags.meta, color: '#7f85a5' },
-  { tag: tags.variableName, color: '#1b1f3b' },
-  { tag: tags.local(tags.variableName), color: '#1b1f3b' },
-  { tag: tags.definition(tags.variableName), color: '#5062d0' },
-  { tag: tags.function(tags.variableName), color: '#5062d0' },
-  { tag: tags.typeName, color: '#5062d0' },
-  { tag: tags.namespace, color: '#3d7fba' },
-  { tag: tags.className, color: '#5062d0' },
-  { tag: tags.macroName, color: '#5062d0' },
-  { tag: tags.propertyName, color: '#3d7fba' },
-  { tag: tags.operator, color: '#5062d0' },
-  { tag: tags.compareOperator, color: '#5062d0' },
-  { tag: tags.arithmeticOperator, color: '#5062d0' },
-  { tag: tags.logicOperator, color: '#5062d0' },
-  { tag: tags.updateOperator, color: '#5062d0' },
-  { tag: tags.punctuation, color: '#7f85a5' },
-  { tag: tags.paren, color: '#4e5475' },
-  { tag: tags.squareBracket, color: '#4e5475' },
-  { tag: tags.brace, color: '#4e5475' },
-  { tag: tags.number, color: '#5062d0' },
-  { tag: tags.keyword, color: '#c04d8e' },
-  { tag: tags.operatorKeyword, color: '#c04d8e' },
-  { tag: tags.escape, color: '#5062d0' },
-  { tag: tags.processingInstruction, color: '#7f85a5' },
-  { tag: tags.inserted, color: '#338a4e' },
-  { tag: tags.deleted, color: '#c04d8e' },
-  { tag: tags.changed, color: '#5062d0' },
-  { tag: tags.invalid, color: '#c04d8e', textDecoration: 'underline' },
-  { tag: tags.content, color: '#1b1f3b' },
-  { tag: tags.list, color: '#4e5475' },
-  { tag: tags.contentSeparator, color: '#dce0ea' }
+  { tag: tags.strong, fontWeight: '700', color: '#2c2a26' },
+  { tag: tags.emphasis, fontStyle: 'italic', color: '#5e5a52' },
+  { tag: tags.strikethrough, textDecoration: 'line-through', color: '#8a857b' },
+  { tag: tags.link, color: '#c07a2a', textDecoration: 'underline' },
+  { tag: tags.url, color: '#5e5a52' },
+  { tag: tags.atom, color: '#c07a2a' },
+  { tag: tags.bool, color: '#c07a2a' },
+  { tag: tags.labelName, color: '#5e5a52' },
+  { tag: tags.string, color: '#4a8c5c' },
+  { tag: tags.special(tags.string), color: '#4a8c5c' },
+  { tag: tags.regexp, color: '#a85a3a' },
+  { tag: tags.quote, color: '#5e5a52', fontStyle: 'italic' },
+  { tag: tags.comment, color: '#8a857b', fontStyle: 'italic' },
+  { tag: tags.meta, color: '#8a857b' },
+  { tag: tags.variableName, color: '#2c2a26' },
+  { tag: tags.local(tags.variableName), color: '#2c2a26' },
+  { tag: tags.definition(tags.variableName), color: '#c07a2a' },
+  { tag: tags.function(tags.variableName), color: '#c07a2a' },
+  { tag: tags.typeName, color: '#c07a2a' },
+  { tag: tags.namespace, color: '#5a7a9e' },
+  { tag: tags.className, color: '#c07a2a' },
+  { tag: tags.macroName, color: '#c07a2a' },
+  { tag: tags.propertyName, color: '#5a7a9e' },
+  { tag: tags.operator, color: '#c07a2a' },
+  { tag: tags.compareOperator, color: '#c07a2a' },
+  { tag: tags.arithmeticOperator, color: '#c07a2a' },
+  { tag: tags.logicOperator, color: '#c07a2a' },
+  { tag: tags.updateOperator, color: '#c07a2a' },
+  { tag: tags.punctuation, color: '#8a857b' },
+  { tag: tags.paren, color: '#5e5a52' },
+  { tag: tags.squareBracket, color: '#5e5a52' },
+  { tag: tags.brace, color: '#5e5a52' },
+  { tag: tags.number, color: '#c07a2a' },
+  { tag: tags.keyword, color: '#a85a3a' },
+  { tag: tags.operatorKeyword, color: '#a85a3a' },
+  { tag: tags.escape, color: '#c07a2a' },
+  { tag: tags.processingInstruction, color: '#8a857b' },
+  { tag: tags.inserted, color: '#4a8c5c' },
+  { tag: tags.deleted, color: '#c44d3e' },
+  { tag: tags.changed, color: '#c07a2a' },
+  { tag: tags.invalid, color: '#c44d3e', textDecoration: 'underline' },
+  { tag: tags.content, color: '#2c2a26' },
+  { tag: tags.list, color: '#5e5a52' },
+  { tag: tags.contentSeparator, color: '#ddd9cf' }
 ])
 
-// 深色主题的编辑器微调 — Night Lamp
+// 深色主题的编辑器微调 — Midnight Sepia
 const leafmarkDarkTheme = EditorView.theme({
   '&': {
     height: '100%'
@@ -146,7 +146,7 @@ const leafmarkDarkTheme = EditorView.theme({
     padding: '0 20px'
   },
   '.cm-activeLine': {
-    backgroundColor: 'rgba(111, 131, 242, 0.06)'
+    backgroundColor: 'rgba(217, 146, 58, 0.06)'
   }
 })
 

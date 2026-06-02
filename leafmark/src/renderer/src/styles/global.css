@@ -1,46 +1,46 @@
 /* ===========================
    LeafMark Design System
-   Direction: Indigo Ink
+   Direction: Amber & Ash
    =========================== */
 
 @import 'katex/dist/katex.min.css';
 
 :root {
-  /* — Core Palette — Cool Paper — */
-  --bg-primary: #f5f6fb;
-  --bg-secondary: #eeeff6;
-  --bg-tertiary: #e4e6f0;
-  --bg-hover: #dcdfea;
-  --bg-surface: #fafbff;
+  /* — Core Palette — Parchment — */
+  --bg-primary: #f7f5f0;
+  --bg-secondary: #efeee8;
+  --bg-tertiary: #e6e4dc;
+  --bg-hover: #deddd5;
+  --bg-surface: #faf9f6;
 
-  /* — Text Hierarchy — India Ink — */
-  --text-primary: #1b1f3b;
-  --text-secondary: #4e5475;
-  --text-muted: #7f85a5;
-  --text-faint: #b3b8d0;
+  /* — Text Hierarchy — Charcoal — */
+  --text-primary: #2c2a26;
+  --text-secondary: #5e5a52;
+  --text-muted: #8a857b;
+  --text-faint: #b5b0a6;
 
   /* — Borders & Lines — */
-  --border-color: #dce0ea;
-  --border-light: #e8eaf3;
-  --border-strong: #c0c5d8;
+  --border-color: #ddd9cf;
+  --border-light: #e8e6df;
+  --border-strong: #c5c0b5;
 
-  /* — Accent — Indigo — */
-  --accent-color: #5062d0;
-  --accent-hover: #4152b8;
-  --accent-soft: rgba(80, 98, 208, 0.1);
-  --accent-glow: rgba(80, 98, 208, 0.06);
+  /* — Accent — Amber — */
+  --accent-color: #c07a2a;
+  --accent-hover: #a86a22;
+  --accent-soft: rgba(192, 122, 42, 0.1);
+  --accent-glow: rgba(192, 122, 42, 0.06);
 
   /* — Semantic — */
-  --danger-color: #d14343;
-  --danger-soft: rgba(209, 67, 67, 0.08);
-  --success-color: #338a4e;
-  --success-soft: rgba(51, 138, 78, 0.08);
-  --info-color: #5062d0;
+  --danger-color: #c44d3e;
+  --danger-soft: rgba(196, 77, 62, 0.08);
+  --success-color: #4a8c5c;
+  --success-soft: rgba(74, 140, 92, 0.08);
+  --info-color: #5a7a9e;
 
   /* — Tab System — */
-  --tab-active-bg: #f5f6fb;
-  --tab-inactive-bg: #eaecf4;
-  --tab-hover-bg: #f0f1f8;
+  --tab-active-bg: #f7f5f0;
+  --tab-inactive-bg: #efeee8;
+  --tab-hover-bg: #f2f0ea;
 
   /* — Layout Rhythm — */
   --sidebar-width: 260px;
@@ -49,11 +49,11 @@
   --statusbar-height: 28px;
   --toolbar-height: 40px;
 
-  /* — Shadows — Cool Blue-Black — */
-  --shadow-xs: 0 1px 2px rgba(10, 15, 40, 0.04);
-  --shadow-sm: 0 1px 4px rgba(10, 15, 40, 0.05), 0 1px 2px rgba(10, 15, 40, 0.04);
-  --shadow-md: 0 4px 12px rgba(10, 15, 40, 0.07), 0 2px 4px rgba(10, 15, 40, 0.04);
-  --shadow-lg: 0 8px 24px rgba(10, 15, 40, 0.09), 0 4px 8px rgba(10, 15, 40, 0.05);
+  /* — Shadows — Warm Brown-Black — */
+  --shadow-xs: 0 1px 2px rgba(40, 30, 15, 0.05);
+  --shadow-sm: 0 1px 4px rgba(40, 30, 15, 0.06), 0 1px 2px rgba(40, 30, 15, 0.04);
+  --shadow-md: 0 4px 12px rgba(40, 30, 15, 0.08), 0 2px 4px rgba(40, 30, 15, 0.04);
+  --shadow-lg: 0 8px 24px rgba(40, 30, 15, 0.1), 0 4px 8px rgba(40, 30, 15, 0.06);
   --shadow-glow: 0 0 0 3px var(--accent-soft);
 
   /* — Radii — */
@@ -68,41 +68,41 @@
   --transition-slow: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* — Dark Theme — Midnight Navy — */
+/* — Dark Theme — Midnight Sepia — */
 [data-theme='dark'] {
-  --bg-primary: #111527;
-  --bg-secondary: #171b32;
-  --bg-tertiary: #1e2240;
-  --bg-hover: #262b4d;
-  --bg-surface: #141830;
+  --bg-primary: #191816;
+  --bg-secondary: #1f1e1b;
+  --bg-tertiary: #282622;
+  --bg-hover: #302e29;
+  --bg-surface: #1d1c19;
 
-  --text-primary: #e3e5f2;
-  --text-secondary: #9ba0c0;
-  --text-muted: #686d8e;
-  --text-faint: #434868;
+  --text-primary: #e8e4db;
+  --text-secondary: #a8a298;
+  --text-muted: #6e6a62;
+  --text-faint: #4a4740;
 
-  --border-color: #262b4d;
-  --border-light: #1e2240;
-  --border-strong: #343a5c;
+  --border-color: #302e29;
+  --border-light: #282622;
+  --border-strong: #3d3a34;
 
-  --accent-color: #6f83f2;
-  --accent-hover: #8798f5;
-  --accent-soft: rgba(111, 131, 242, 0.12);
-  --accent-glow: rgba(111, 131, 242, 0.06);
+  --accent-color: #d9923a;
+  --accent-hover: #e5a44e;
+  --accent-soft: rgba(217, 146, 58, 0.12);
+  --accent-glow: rgba(217, 146, 58, 0.06);
 
-  --danger-color: #e85d5d;
-  --danger-soft: rgba(232, 93, 93, 0.12);
-  --success-color: #4cb868;
-  --success-soft: rgba(76, 184, 104, 0.1);
+  --danger-color: #e06456;
+  --danger-soft: rgba(224, 100, 86, 0.12);
+  --success-color: #5ebe74;
+  --success-soft: rgba(94, 190, 116, 0.1);
 
-  --tab-active-bg: #111527;
-  --tab-inactive-bg: #171b32;
-  --tab-hover-bg: #1e2240;
+  --tab-active-bg: #191816;
+  --tab-inactive-bg: #1f1e1b;
+  --tab-hover-bg: #282622;
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.25);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45), 0 4px 8px rgba(0, 0, 0, 0.3);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.35);
 }
 
 /* KaTeX 深色主题覆盖 */
@@ -290,7 +290,7 @@ button:focus-visible {
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(10, 15, 40, 0.35);
+  background: rgba(40, 30, 15, 0.3);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   display: flex;
@@ -319,7 +319,7 @@ button:focus-visible {
 .dialog-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(10, 15, 40, 0.35);
+  background: rgba(40, 30, 15, 0.3);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   display: flex;
