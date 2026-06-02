@@ -106,6 +106,49 @@
   color: var(--text-muted);
 }
 
+/* — 右键菜单 — */
+.contextMenu {
+  position: fixed;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  min-width: 150px;
+  padding: 4px 0;
+  animation: contextSlideDown 0.12s ease;
+}
+
+@keyframes contextSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.contextMenu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  font-size: 13px;
+  transition: background var(--transition-fast);
+}
+
+.contextMenu button:hover {
+  background: var(--accent-soft);
+}
+
 /* — 保存确认弹窗 — */
 .overlay {
   position: fixed;

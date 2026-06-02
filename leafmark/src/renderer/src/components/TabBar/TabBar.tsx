@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useCallback, useRef, useEffect } from 'react'
 import { useNoteStore } from '../../store/noteStore'
 import { IconClose } from '../Icons'
 import styles from './TabBar.module.css'
@@ -11,7 +11,28 @@ export default function TabBar() {
   const saveFile = useNoteStore((s) => s.saveFile)
 
   // 待关闭确认的标签页
-  const [pendingClose, setPendingClose] = useState<{ path: string; name: string } | null>(null)
+  const [pendingClose, setPendingClose] = useState<{
+    path: string
+    name: string
+    /** 关闭所有时为 true，用于在确认后继续关闭剩余未保存标签 */
+    closeAll?: boolean
+  } | null>(null)
+
+  // 右键菜单状态
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
+  const contextMenuRef = useRef<HTMLDivElement>(null)
+
+  // 点击外部关闭右键菜单
+  useEffect(() => {
+    if (!contextMenu) return
+    const close = (e: MouseEvent) => {
+      if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
+        setContextMenu(null)
+      }
+    }
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [contextMenu])
 
   // 仅提取展示所需字段，避免 content 变化导致 memo 失效
   const tabDisplayData = useMemo(
@@ -35,12 +56,28 @@ export default function TabBar() {
     if (!pendingClose) return
     await saveFile(pendingClose.path)
     closeTab(pendingClose.path)
+    // 如果是关闭所有模式，继续检查下一个未保存标签
+    if (pendingClose.closeAll) {
+      const remaining = useNoteStore.getState().openTabs.filter((t) => t.modified)
+      if (remaining.length > 0) {
+        setPendingClose({ path: remaining[0].path, name: remaining[0].name, closeAll: true })
+        return
+      }
+    }
     setPendingClose(null)
   }, [pendingClose, saveFile, closeTab])
 
   const handleDiscardAndClose = useCallback(() => {
     if (!pendingClose) return
     closeTab(pendingClose.path)
+    // 如果是关闭所有模式，继续检查下一个未保存标签
+    if (pendingClose.closeAll) {
+      const remaining = useNoteStore.getState().openTabs.filter((t) => t.modified)
+      if (remaining.length > 0) {
+        setPendingClose({ path: remaining[0].path, name: remaining[0].name, closeAll: true })
+        return
+      }
+    }
     setPendingClose(null)
   }, [pendingClose, closeTab])
 
@@ -48,10 +85,40 @@ export default function TabBar() {
     setPendingClose(null)
   }, [])
 
+  // 右键菜单：关闭当前标签
+  const handleMenuCloseCurrent = useCallback(() => {
+    setContextMenu(null)
+    const active = useNoteStore.getState().openTabs.find((t) => t.path === activeTabPath)
+    if (!active) return
+    if (active.modified) {
+      setPendingClose({ path: active.path, name: active.name })
+    } else {
+      closeTab(active.path)
+    }
+  }, [activeTabPath, closeTab])
+
+  // 右键菜单：关闭所有标签
+  const handleMenuCloseAll = useCallback(() => {
+    setContextMenu(null)
+    const tabs = useNoteStore.getState().openTabs
+    const firstModified = tabs.find((t) => t.modified)
+    if (firstModified) {
+      setPendingClose({ path: firstModified.path, name: firstModified.name, closeAll: true })
+    } else {
+      // 没有未保存的，直接全部关闭
+      tabs.forEach((t) => closeTab(t.path))
+    }
+  }, [closeTab])
+
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    setContextMenu({ x: e.clientX, y: e.clientY })
+  }, [])
+
   if (tabDisplayData.length === 0) return null
 
   return (
-    <div className={styles.tabBar}>
+    <div className={styles.tabBar} onContextMenu={handleContextMenu}>
       <div className={styles.tabs}>
         {tabDisplayData.map((tab) => (
           <div
@@ -72,6 +139,22 @@ export default function TabBar() {
           </div>
         ))}
       </div>
+
+      {contextMenu && (
+        <div
+          ref={contextMenuRef}
+          className={styles.contextMenu}
+          style={{ left: contextMenu.x, top: contextMenu.y }}
+        >
+          <button onClick={handleMenuCloseCurrent}>
+            <IconClose size={13} />
+            <span>关闭当前文件</span>
+          </button>
+          <button onClick={handleMenuCloseAll}>
+            <span>关闭所有文件</span>
+          </button>
+        </div>
+      )}
 
       {pendingClose && (
         <div className={styles.overlay} onClick={handleCancelClose}>
