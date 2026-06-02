@@ -72,6 +72,7 @@ interface NoteState {
   tags: Record<string, string[]>
   tagColors: Record<string, string>
   tagFilter: string
+  welcomed: boolean
 
   // actions
   setWorkspaceDir: (dir: string) => void
@@ -137,6 +138,7 @@ export const useNoteStore = create<NoteState>()(
       tags: {},
       tagColors: {},
       tagFilter: '',
+      welcomed: false,
 
       setWorkspaceDir: (dir) => set({ workspaceDir: dir }),
 
@@ -427,7 +429,8 @@ export const useNoteStore = create<NoteState>()(
         typewriterMode: state.typewriterMode,
         tags: state.tags,
         tagColors: state.tagColors,
-        writingStats: state.writingStats
+        writingStats: state.writingStats,
+        welcomed: state.welcomed
       })
     }
   )

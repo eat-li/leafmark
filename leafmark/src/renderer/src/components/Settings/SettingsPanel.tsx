@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useNoteStore, type Theme } from '../../store/noteStore'
-import { dialog, appSettings } from '../../api/electron'
+import { dialog, appSettings, fs } from '../../api/electron'
+import { applyTemplate, getBuiltInVars, WELCOME_NOTE_CONTENT } from '../../utils/template'
 import styles from './SettingsPanel.module.css'
 
 export default function SettingsPanel() {
@@ -49,6 +50,25 @@ function SettingsPanelContent() {
     await appSettings.setCloseToTray(enabled)
     setCloseToTray(enabled)
   }
+
+  const handleOpenWelcome = useCallback(async () => {
+    const dir = useNoteStore.getState().workspaceDir
+    if (!dir) return
+    const filePath = `${dir}/欢迎使用 LeafMark.md`
+    try {
+      const exists = await fs.pathExists(filePath)
+      if (exists) {
+        await useNoteStore.getState().openFile(filePath, '欢迎使用 LeafMark.md')
+      } else {
+        const vars = getBuiltInVars('欢迎使用 LeafMark')
+        const content = applyTemplate(WELCOME_NOTE_CONTENT, vars)
+        await useNoteStore.getState().createNoteFromTemplate(dir, '欢迎使用 LeafMark', content)
+      }
+    } catch {
+      // 忽略
+    }
+    setShowSettings(false)
+  }, [setShowSettings])
 
   const handleChangeWorkspace = async () => {
     const paths = await dialog.open({
@@ -175,7 +195,9 @@ function SettingsPanelContent() {
             <div className={styles.settingRow}>
               <div className={styles.settingInfo}>
                 <span className={styles.settingName}>关联 .md 文件</span>
-                <span className={styles.settingDesc}>将 LeafMark 设为 Markdown 文件的默认打开方式</span>
+                <span className={styles.settingDesc}>
+                  将 LeafMark 设为 Markdown 文件的默认打开方式
+                </span>
               </div>
               <label className={styles.toggle}>
                 <input
@@ -209,6 +231,9 @@ function SettingsPanelContent() {
               <span className={styles.version}>v1.0.0</span>
               <p className={styles.desc}>一款简洁的 Markdown 笔记编辑器</p>
             </div>
+            <button className={styles.linkBtn} onClick={handleOpenWelcome}>
+              查看欢迎笔记
+            </button>
           </div>
         </div>
       </div>

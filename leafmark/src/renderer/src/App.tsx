@@ -6,6 +6,7 @@ import {
   loadTemplates,
   applyTemplate,
   getBuiltInVars,
+  WELCOME_NOTE_CONTENT,
   type TemplateInfo
 } from './utils/template'
 import {
@@ -37,6 +38,7 @@ function preloadPreview() {
     import('./components/Preview/PreviewPanel')
   }
 }
+
 
 function App(): React.JSX.Element {
   const sidebarVisible = useNoteStore((s) => s.sidebarVisible)
@@ -73,8 +75,17 @@ function App(): React.JSX.Element {
 
   useEffect(() => {
     initWorkspace().then(() => {
-      const dir = useNoteStore.getState().workspaceDir
+      const state = useNoteStore.getState()
+      const dir = state.workspaceDir
       if (dir) ensureBuiltInTemplates(dir).catch(() => {})
+      // 首次启动：创建欢迎笔记并打开
+      if (!state.welcomed && state.fileTree.length === 0) {
+        const vars = getBuiltInVars('欢迎使用 LeafMark')
+        const content = applyTemplate(WELCOME_NOTE_CONTENT, vars)
+        state.createNoteFromTemplate(dir, '欢迎使用 LeafMark', content).then(() => {
+          useNoteStore.setState({ welcomed: true })
+        })
+      }
     })
   }, [initWorkspace])
 

@@ -106,3 +106,60 @@ export async function saveAsTemplate(
   const filePath = `${dir}/${templateName}.md`
   await fs.writeFile(filePath, content)
 }
+
+/** 欢迎笔记模板内容 */
+export const WELCOME_NOTE_CONTENT = `# 欢迎使用 LeafMark 🍃
+
+> {{date}} · 这是你的第一篇笔记
+
+LeafMark 是一款简洁的桌面 Markdown 编辑器，以下是一些快速上手提示。
+
+## 快捷键速查
+
+### 文件操作
+
+| 快捷键 | 功能 |
+|--------|------|
+| Ctrl+N | 新建笔记 |
+| Ctrl+O | 打开文件 |
+| Ctrl+S | 保存当前文件 |
+| Ctrl+Shift+S | 保存所有文件 |
+
+### 编辑
+
+| 快捷键 | 功能 |
+|--------|------|
+| Ctrl+F | 在文件内查找 |
+| Ctrl+H | 查找并替换 |
+| Ctrl+Z | 撤销 |
+| Ctrl+Y | 重做 |
+
+### 视图
+
+| 快捷键 | 功能 |
+|--------|------|
+| Ctrl+Shift+F | 全工作区搜索 |
+| Ctrl+Shift+P | 命令面板 |
+| Ctrl+Shift+H | 写作热力图 |
+
+## 快速开始
+
+1. 在左侧文件树中管理你的笔记
+2. 使用工具栏按钮或快捷键插入 Markdown 格式
+3. 按 Ctrl+N 新建笔记时可以选择模板
+4. 右键文件可以保存为模板，方便复用
+
+## 模板功能
+
+创建新笔记时（Ctrl+N），可以从内置模板中选择：
+
+- **日记** — 每日记录
+- **会议记录** — 结构化会议纪要
+- **读书笔记** — 阅读摘录与思考
+
+你也可以把任意笔记保存为自定义模板。
+
+---
+
+> 这篇笔记可以随时删除。祝写作愉快 ✨
+`
