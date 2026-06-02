@@ -164,6 +164,7 @@ function FileTreeNode({ node, level }: FileTreeNodeProps) {
         style={{ paddingLeft: `${level * 16 + 8}px` }}
         onClick={handleClick}
         onContextMenu={handleContextMenu}
+        data-tree-node
       >
         <span className={styles.icon}>
           {node.type === 'directory' ? (

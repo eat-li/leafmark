@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { useNoteStore } from '../../store/noteStore'
 import { dialog } from '../../api/electron'
 import FileTreeNode from './FileTreeNode'
@@ -29,6 +29,33 @@ export default function Sidebar() {
   const [showNewFolderInput, setShowNewFolderInput] = useState(false)
   const [newItemName, setNewItemName] = useState('')
   const [error, setError] = useState('')
+
+  // 右键菜单状态
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
+  const contextMenuRef = useRef<HTMLDivElement>(null)
+
+  // 点击外部关闭右键菜单
+  useEffect(() => {
+    if (!contextMenu) return
+    const close = (e: MouseEvent) => {
+      if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
+        setContextMenu(null)
+      }
+    }
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [contextMenu])
+
+  const handleTreeContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      // 只在空白区域触发，如果点击的是文件节点则跳过（由 FileTreeNode 自行处理）
+      const target = e.target as HTMLElement
+      if (target.closest('[data-tree-node]')) return
+      e.preventDefault()
+      setContextMenu({ x: e.clientX, y: e.clientY })
+    },
+    []
+  )
 
   // 获取所有标签
   const allTags = useMemo(() => {
@@ -189,13 +216,50 @@ export default function Sidebar() {
 
       {error && <div className={styles.error}>{error}</div>}
 
-      <div className={styles.tree}>
+      <div className={styles.tree} onContextMenu={handleTreeContextMenu}>
         {filteredTree.length === 0 ? (
           <div className={styles.empty}>
             {tagFilter ? '该标签下暂无文件' : '暂无文件'}
           </div>
         ) : (
           filteredTree.map((node) => <FileTreeNode key={node.path} node={node} level={0} />)
+        )}
+
+        {contextMenu && (
+          <div
+            ref={contextMenuRef}
+            className={styles.contextMenu}
+            style={{ left: contextMenu.x, top: contextMenu.y }}
+          >
+            <button
+              onClick={() => {
+                setContextMenu(null)
+                openNewFileInput()
+              }}
+            >
+              <IconNewFile size={14} />
+              <span>新建笔记</span>
+            </button>
+            <button
+              onClick={() => {
+                setContextMenu(null)
+                openNewFolderInput()
+              }}
+            >
+              <IconNewFolder size={14} />
+              <span>新建文件夹</span>
+            </button>
+            <div className={styles.menuDivider} />
+            <button
+              onClick={() => {
+                setContextMenu(null)
+                refreshFileTree()
+              }}
+            >
+              <IconRefresh size={14} />
+              <span>刷新</span>
+            </button>
+          </div>
         )}
       </div>
     </div>
