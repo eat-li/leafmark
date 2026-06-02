@@ -3,7 +3,7 @@
    Direction: Amber & Ash
    =========================== */
 
-@import 'katex/dist/katex.min.css';
+/* KaTeX CSS 已移至 PreviewPanel 中按需动态加载 */
 
 :root {
   /* — Core Palette — Parchment — */
@@ -405,4 +405,15 @@ button:focus-visible {
 
 [data-theme="dark"] .dialog-overlay {
   background: rgba(0, 0, 0, 0.55);
+}
+
+/* — 预览面板懒加载占位 — */
+.preview-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-faint);
+  font-size: 13px;
+}
 }

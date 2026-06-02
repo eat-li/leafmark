@@ -96,6 +96,14 @@ import { useNoteStore } from '../../store/noteStore'
 import { fs } from '../../api/electron'
 import styles from './PreviewPanel.module.css'
 
+// 动态加载 KaTeX CSS（从 global.css 的 @import 移到这里按需加载）
+let katexCssLoaded = false
+function ensureKatexCss() {
+  if (katexCssLoaded) return
+  katexCssLoaded = true
+  import('katex/dist/katex.min.css')
+}
+
 interface PreviewPanelProps {
   onScroll?: (percent: number) => void
   onRegisterScrollTo?: (fn: (percent: number) => void) => void
@@ -103,6 +111,9 @@ interface PreviewPanelProps {
 }
 
 export default function PreviewPanel({ onScroll, onRegisterScrollTo, isSyncing }: PreviewPanelProps) {
+  // 组件挂载时动态加载 KaTeX CSS
+  useEffect(() => { ensureKatexCss() }, [])
+
   const containerRef = useRef<HTMLDivElement>(null)
   const openTabs = useNoteStore((s) => s.openTabs)
   const activeTabPath = useNoteStore((s) => s.activeTabPath)

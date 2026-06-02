@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef, useState } from 'react'
+import { useEffect, useCallback, useRef, useState, lazy, Suspense } from 'react'
 import { useNoteStore } from './store/noteStore'
 import { dialog, appSettings } from './api/electron'
 import TitleBar from './components/TitleBar/TitleBar'
@@ -6,12 +6,23 @@ import Sidebar from './components/Sidebar/Sidebar'
 import Toolbar from './components/Toolbar/Toolbar'
 import TabBar from './components/TabBar/TabBar'
 import EditorPanel from './components/Editor/EditorPanel'
-import PreviewPanel from './components/Preview/PreviewPanel'
 import StatusBar from './components/StatusBar/StatusBar'
-import SearchPanel from './components/Search/SearchPanel'
-import SettingsPanel from './components/Settings/SettingsPanel'
-import OutlinePanel from './components/Outline/OutlinePanel'
-import HeatmapPanel from './components/Heatmap/HeatmapPanel'
+
+// 懒加载非首屏组件，减少初始 bundle 体积
+const PreviewPanel = lazy(() => import('./components/Preview/PreviewPanel'))
+const SearchPanel = lazy(() => import('./components/Search/SearchPanel'))
+const SettingsPanel = lazy(() => import('./components/Settings/SettingsPanel'))
+const OutlinePanel = lazy(() => import('./components/Outline/OutlinePanel'))
+const HeatmapPanel = lazy(() => import('./components/Heatmap/HeatmapPanel'))
+
+// 预加载函数：当用户切换到预览模式时触发
+let previewPreloaded = false
+function preloadPreview() {
+  if (!previewPreloaded) {
+    previewPreloaded = true
+    import('./components/Preview/PreviewPanel')
+  }
+}
 
 function App(): React.JSX.Element {
   const sidebarVisible = useNoteStore((s) => s.sidebarVisible)
@@ -46,6 +57,13 @@ function App(): React.JSX.Element {
   useEffect(() => {
     initWorkspace()
   }, [initWorkspace])
+
+  // 当用户切换到包含预览的模式时，预加载 PreviewPanel
+  useEffect(() => {
+    if (viewMode === 'preview' || viewMode === 'split') {
+      preloadPreview()
+    }
+  }, [viewMode])
 
   // 监听系统传入的文件打开事件（如双击 .md 文件，应用已在运行时）
   useEffect(() => {
@@ -216,20 +234,24 @@ function App(): React.JSX.Element {
               />
             )}
             {(viewMode === 'preview' || viewMode === 'split') && (
-              <PreviewPanel
-                onScroll={isSplitMode ? handlePreviewScroll : undefined}
-                onRegisterScrollTo={isSplitMode ? handlePreviewRegisterScroll : undefined}
-                isSyncing={isSplitMode ? previewSyncingRef : undefined}
-              />
+              <Suspense fallback={<div className="preview-loading">加载预览...</div>}>
+                <PreviewPanel
+                  onScroll={isSplitMode ? handlePreviewScroll : undefined}
+                  onRegisterScrollTo={isSplitMode ? handlePreviewRegisterScroll : undefined}
+                  isSyncing={isSplitMode ? previewSyncingRef : undefined}
+                />
+              </Suspense>
             )}
           </div>
         </div>
       </div>
       <StatusBar />
-      <SearchPanel />
-      <SettingsPanel />
-      <OutlinePanel onScrollToLine={(line) => scrollToLineRef.current?.(line)} />
-      {showHeatmap && <HeatmapPanel />}
+      <Suspense fallback={null}>
+        <SearchPanel />
+        <SettingsPanel />
+        <OutlinePanel onScrollToLine={(line) => scrollToLineRef.current?.(line)} />
+        {showHeatmap && <HeatmapPanel />}
+      </Suspense>
 
       {/* 新建文件弹窗 */}
       {showNewFileDialog && (

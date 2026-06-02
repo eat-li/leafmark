@@ -27,6 +27,7 @@
 .controls {
   display: flex;
   -webkit-app-region: no-drag;
+  margin-left: auto;
 }
 
 .btn {
