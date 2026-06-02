@@ -1,13 +1,19 @@
+/* ——————————————————————————————————————————————
+   ImagePreview — Editorial Gallery
+   以图片为绝对主角，画布退为静谧背景
+   —————————————————————————————————————————————— */
+
 .container {
   position: relative;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: var(--bg-primary);
   user-select: none;
+  /* 画布底色：比主背景更深一级，营造沉浸感 */
+  background: var(--bg-secondary);
 }
 
-/* 棋盘格背景 — 提示透明图片 */
+/* 棋盘格 — 透明图片的视觉提示，极其克制 */
 .container::before {
   content: '';
   position: absolute;
@@ -17,18 +23,35 @@
     linear-gradient(-45deg, var(--bg-tertiary) 25%, transparent 25%),
     linear-gradient(45deg, transparent 75%, var(--bg-tertiary) 75%),
     linear-gradient(-45deg, transparent 75%, var(--bg-tertiary) 75%);
-  background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0;
-  opacity: 0.3;
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  opacity: 0.18;
   z-index: 0;
 }
 
+/* 径向暗角 — 将视线引导至画面中央 */
+.container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 70% 70% at 50% 50%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.08) 100%
+  );
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* — 图片本体 — */
 .image {
   position: absolute;
   z-index: 1;
   object-fit: contain;
   image-rendering: auto;
   transition: none;
+  /* 图片投影：让图片从画布上"浮起" */
+  filter: drop-shadow(0 4px 24px rgba(0, 0, 0, 0.12));
 }
 
 .image.pixelated {
@@ -39,99 +62,173 @@
   cursor: grabbing !important;
 }
 
-/* — 顶部文件名 — */
+/* — 顶部文件名条 — */
 .fileName {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   z-index: 10;
-  padding: 10px 16px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
-  color: #fff;
+  padding: 14px 20px 28px;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.12) 60%,
+    transparent 100%
+  );
+  color: rgba(255, 255, 255, 0.92);
   font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.4px;
   pointer-events: none;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  animation: fadeSlideDown 0.3s ease both;
 }
 
-/* — 底部工具栏 — */
+/* — 底部工具栏 — 悬浮玻璃质感 — */
 .toolbar {
   position: absolute;
-  bottom: 16px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 10px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  backdrop-filter: blur(8px);
+  gap: 2px;
+  padding: 5px 8px;
+  background: rgba(250, 251, 255, 0.82);
+  border: 1px solid rgba(220, 224, 234, 0.6);
+  border-radius: 14px;
+  box-shadow:
+    0 4px 16px rgba(10, 15, 40, 0.08),
+    0 1px 3px rgba(10, 15, 40, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  animation: fadeSlideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation-delay: 0.08s;
+}
+
+/* 深色主题下工具栏 */
+:global([data-theme='dark']) .toolbar {
+  background: rgba(20, 24, 48, 0.85);
+  border-color: rgba(38, 43, 77, 0.7);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .toolBtn {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border: none;
   background: transparent;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   cursor: pointer;
-  border-radius: var(--radius-sm);
+  border-radius: 10px;
   font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    transform 0.1s ease;
 }
 
 .toolBtn:hover {
-  background: var(--bg-hover);
+  background: rgba(80, 98, 208, 0.08);
   color: var(--accent-color);
 }
 
+.toolBtn:active {
+  transform: scale(0.92);
+}
+
 .zoomLabel {
-  min-width: 50px;
+  min-width: 52px;
   text-align: center;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.3px;
   cursor: pointer;
-  padding: 4px 6px;
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
+  padding: 5px 8px;
+  border-radius: 8px;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .zoomLabel:hover {
-  background: var(--bg-hover);
+  background: rgba(80, 98, 208, 0.08);
   color: var(--accent-color);
 }
 
 .separator {
   width: 1px;
-  height: 20px;
+  height: 22px;
   background: var(--border-light);
-  margin: 0 4px;
+  margin: 0 3px;
+  opacity: 0.6;
 }
 
-/* — 图片信息 — */
+/* — 图片尺寸信息 — */
 .imageInfo {
   position: absolute;
-  bottom: 16px;
-  right: 16px;
+  bottom: 20px;
+  right: 20px;
   z-index: 10;
   font-size: 11px;
-  color: var(--text-muted);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: 4px 10px;
-  box-shadow: var(--shadow-xs);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 5px 12px;
   pointer-events: none;
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.4px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.4s ease both;
+  animation-delay: 0.15s;
+}
+
+/* 深色主题下信息标签 */
+:global([data-theme='dark']) .imageInfo {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* — 入场动画 — */
+@keyframes fadeSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
