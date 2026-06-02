@@ -8,6 +8,29 @@ let mainWindow: BrowserWindow | null = null
 let tray: Tray | null = null
 let closeToTray = false
 
+// 待打开的文件路径（由系统传入，如双击 .md 文件）
+// 渲染进程就绪后会通过 IPC 主动拉取
+let pendingOpenFile: string | null = null
+
+/** 将文件路径发送到渲染进程（如果已就绪），否则暂存 */
+function sendFileToRenderer(filePath: string): void {
+  if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents) {
+    mainWindow.webContents.send('app:openFile', filePath)
+  }
+  // 始终暂存，渲染进程可能还没注册监听器
+  pendingOpenFile = filePath
+}
+
+/** 从命令行参数中提取 .md 文件路径 */
+function getFilePathFromArgv(argv: string[]): string | null {
+  for (const arg of argv.slice(1)) {
+    if (arg.endsWith('.md') && !arg.startsWith('-')) {
+      return arg
+    }
+  }
+  return null
+}
+
 function createWindow(): void {
   mainWindow = new BrowserWindow({
     width: 1200,
@@ -26,6 +49,8 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow!.show()
+    // 注意：不在这里发送 pendingOpenFile，因为此时渲染进程的 React 还未挂载
+    // 由渲染进程挂载后通过 IPC 主动拉取
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -81,6 +106,32 @@ function createTray(): void {
   })
 }
 
+// macOS：应用已打开后再通过系统打开 .md 文件
+app.on('open-file', (event, filePath) => {
+  event.preventDefault()
+  if (filePath.endsWith('.md')) {
+    sendFileToRenderer(filePath)
+    // 如果窗口被隐藏到托盘，显示出来
+    if (mainWindow) {
+      mainWindow.show()
+      mainWindow.focus()
+    }
+  }
+})
+
+// Windows/Linux：第二次启动时将文件路径传给已有实例
+app.on('second-instance', (_, argv) => {
+  const filePath = getFilePathFromArgv(argv)
+  if (filePath) {
+    sendFileToRenderer(filePath)
+  }
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore()
+    mainWindow.show()
+    mainWindow.focus()
+  }
+})
+
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.leafmark.editor')
 
@@ -102,8 +153,21 @@ app.whenReady().then(() => {
     app.quit()
   })
 
+  // 渲染进程就绪后拉取待打开的文件路径
+  ipcMain.handle('app:getPendingFile', () => {
+    const filePath = pendingOpenFile
+    pendingOpenFile = null
+    return filePath
+  })
+
   createWindow()
   createTray()
+
+  // 首次启动：检查命令行是否传入了文件路径
+  const fileFromArgv = getFilePathFromArgv(process.argv)
+  if (fileFromArgv) {
+    sendFileToRenderer(fileFromArgv)
+  }
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

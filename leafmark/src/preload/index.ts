@@ -37,6 +37,12 @@ const electronAPI = {
   setCloseToTray: (enabled: boolean) => ipcRenderer.invoke('app:setCloseToTray', enabled),
   getCloseToTray: () => ipcRenderer.invoke('app:getCloseToTray'),
   quitApp: () => ipcRenderer.invoke('app:quitApp'),
+  getFileAssociation: () => ipcRenderer.invoke('app:getFileAssociation'),
+  setFileAssociation: (enabled: boolean) => ipcRenderer.invoke('app:setFileAssociation', enabled),
+  getPendingFile: () => ipcRenderer.invoke('app:getPendingFile'),
+  onOpenFile: (callback: (filePath: string) => void) => {
+    ipcRenderer.on('app:openFile', (_, filePath) => callback(filePath))
+  },
 
   // 系统操作
   openInSystem: (targetPath: string) => ipcRenderer.invoke('shell:openPath', targetPath),

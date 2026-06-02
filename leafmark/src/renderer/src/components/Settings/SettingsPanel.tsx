@@ -26,14 +26,23 @@ function SettingsPanelContent() {
   const setCloseToTray = useNoteStore((s) => s.setCloseToTray)
 
   const [autoLaunch, setAutoLaunch] = useState(false)
+  const [fileAssociation, setFileAssociation] = useState(false)
 
   useEffect(() => {
     appSettings.getAutoLaunch().then(setAutoLaunch)
+    appSettings.getFileAssociation().then(setFileAssociation)
   }, [])
 
   const handleAutoLaunch = async (enabled: boolean) => {
     await appSettings.setAutoLaunch(enabled)
     setAutoLaunch(enabled)
+  }
+
+  const handleFileAssociation = async (enabled: boolean) => {
+    const result = await appSettings.setFileAssociation(enabled)
+    if (result) {
+      setFileAssociation(enabled)
+    }
   }
 
   const handleCloseToTray = async (enabled: boolean) => {
@@ -158,6 +167,21 @@ function SettingsPanelContent() {
                   type="checkbox"
                   checked={closeToTray}
                   onChange={(e) => handleCloseToTray(e.target.checked)}
+                />
+                <span className={styles.slider} />
+              </label>
+            </div>
+
+            <div className={styles.settingRow}>
+              <div className={styles.settingInfo}>
+                <span className={styles.settingName}>关联 .md 文件</span>
+                <span className={styles.settingDesc}>将 LeafMark 设为 Markdown 文件的默认打开方式</span>
+              </div>
+              <label className={styles.toggle}>
+                <input
+                  type="checkbox"
+                  checked={fileAssociation}
+                  onChange={(e) => handleFileAssociation(e.target.checked)}
                 />
                 <span className={styles.slider} />
               </label>

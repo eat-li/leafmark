@@ -28,6 +28,10 @@ interface ElectronAPI {
   setCloseToTray: (enabled: boolean) => Promise<void>
   getCloseToTray: () => Promise<boolean>
   quitApp: () => Promise<void>
+  getFileAssociation: () => Promise<boolean>
+  setFileAssociation: (enabled: boolean) => Promise<boolean>
+  getPendingFile: () => Promise<string | null>
+  onOpenFile: (callback: (filePath: string) => void) => void
   openInSystem: (targetPath: string) => Promise<string>
   exportPDF: (html: string, defaultName: string) => Promise<boolean>
   exportHTML: (html: string, defaultName: string) => Promise<boolean>

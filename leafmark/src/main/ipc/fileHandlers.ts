@@ -2,6 +2,7 @@ import { ipcMain, app, dialog, BrowserWindow, clipboard, shell } from 'electron'
 import { promises as fsp } from 'fs'
 import fs from 'fs'
 import path from 'path'
+import { execFile } from 'child_process'
 
 interface FileEntry {
   name: string
@@ -162,6 +163,66 @@ export function registerFileHandlers(): void {
 
   ipcMain.handle('app:getAutoLaunch', () => {
     return app.getLoginItemSettings().openAtLogin
+  })
+
+  // ---------- .md 文件关联 ----------
+  const APP_ID = 'com.leafmark.editor'
+  const PROG_ID = `${APP_ID}.md`
+
+  /** 通过注册表检查 .md 文件是否已关联到本应用 */
+  function checkFileAssociation(): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (process.platform !== 'win32') {
+        resolve(false)
+        return
+      }
+      execFile('reg', ['query', `HKCU\\Software\\Classes\\.md`, '/ve'], (err, stdout) => {
+        if (err) {
+          resolve(false)
+          return
+        }
+        resolve(stdout.includes(PROG_ID))
+      })
+    })
+  }
+
+  /** 通过注册表设置 .md 文件关联到本应用 */
+  function setFileAssociation(enabled: boolean): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (process.platform !== 'win32') {
+        resolve(false)
+        return
+      }
+
+      if (!enabled) {
+        // 取消关联：删除 .md 的默认值
+        execFile('reg', ['delete', `HKCU\\Software\\Classes\\.md`, '/ve', '/f'], (err) => {
+          resolve(!err)
+        })
+        return
+      }
+
+      const exePath = process.execPath.replace(/\\/g, '\\\\')
+      // 构建注册表命令：设置 .md 默认值 + 注册 ProgId + 设置打开命令
+      const cmd = [
+        `reg add "HKCU\\Software\\Classes\\.md" /ve /d "${PROG_ID}" /f &&`,
+        `reg add "HKCU\\Software\\Classes\\${PROG_ID}" /ve /d "Markdown 文档" /f &&`,
+        `reg add "HKCU\\Software\\Classes\\${PROG_ID}\\DefaultIcon" /ve /d "${exePath},0" /f &&`,
+        `reg add "HKCU\\Software\\Classes\\${PROG_ID}\\shell\\open\\command" /ve /d "\\"${exePath}\\" \\"%1\\"" /f`
+      ].join(' ')
+
+      require('child_process').exec(cmd, (err: any) => {
+        resolve(!err)
+      })
+    })
+  }
+
+  ipcMain.handle('app:getFileAssociation', async () => {
+    return await checkFileAssociation()
+  })
+
+  ipcMain.handle('app:setFileAssociation', async (_, enabled: boolean) => {
+    return await setFileAssociation(enabled)
   })
 
   // ---------- 剪贴板图片 ----------

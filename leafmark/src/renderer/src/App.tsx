@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useRef, useState } from 'react'
 import { useNoteStore } from './store/noteStore'
-import { dialog } from './api/electron'
+import { dialog, appSettings } from './api/electron'
 import TitleBar from './components/TitleBar/TitleBar'
 import Sidebar from './components/Sidebar/Sidebar'
 import Toolbar from './components/Toolbar/Toolbar'
@@ -46,6 +46,22 @@ function App(): React.JSX.Element {
   useEffect(() => {
     initWorkspace()
   }, [initWorkspace])
+
+  // 监听系统传入的文件打开事件（如双击 .md 文件，应用已在运行时）
+  useEffect(() => {
+    appSettings.onOpenFile((filePath: string) => {
+      const name = filePath.split(/[/\\]/).pop() || filePath
+      useNoteStore.getState().openFile(filePath, name)
+    })
+
+    // 主动拉取启动时暂存的待打开文件（解决 React 未挂载时 IPC 消息丢失的问题）
+    appSettings.getPendingFile().then((filePath) => {
+      if (filePath) {
+        const name = filePath.split(/[/\\]/).pop() || filePath
+        useNoteStore.getState().openFile(filePath, name)
+      }
+    })
+  }, [])
 
   // 主题处理
   useEffect(() => {

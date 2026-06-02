@@ -48,7 +48,11 @@ export const appSettings = {
   getAutoLaunch: (): Promise<boolean> => api.getAutoLaunch(),
   setCloseToTray: (enabled: boolean): Promise<void> => api.setCloseToTray(enabled),
   getCloseToTray: (): Promise<boolean> => api.getCloseToTray(),
-  quitApp: (): Promise<void> => api.quitApp()
+  quitApp: (): Promise<void> => api.quitApp(),
+  getFileAssociation: (): Promise<boolean> => api.getFileAssociation(),
+  setFileAssociation: (enabled: boolean): Promise<boolean> => api.setFileAssociation(enabled),
+  getPendingFile: (): Promise<string | null> => api.getPendingFile(),
+  onOpenFile: (callback: (filePath: string) => void): void => api.onOpenFile(callback)
 }
 
 export const shell = {

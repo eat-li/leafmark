@@ -14,6 +14,12 @@ asarUnpack:
 win:
   icon: build/icon.ico
   executableName: leafmark
+fileAssociations:
+  - ext: md
+    name: Markdown
+    description: Markdown 文档
+    mimeType: text/markdown
+    role: Editor
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
