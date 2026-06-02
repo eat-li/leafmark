@@ -147,7 +147,6 @@ export default function TabBar() {
           style={{ left: contextMenu.x, top: contextMenu.y }}
         >
           <button onClick={handleMenuCloseCurrent}>
-            <IconClose size={13} />
             <span>关闭当前文件</span>
           </button>
           <button onClick={handleMenuCloseAll}>
