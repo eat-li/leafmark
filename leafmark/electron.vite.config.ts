@@ -66,26 +66,32 @@ export default defineConfig({
           // 函数式分包：自动将 node_modules 按类别拆分，优于写死的名单
           manualChunks(id) {
             // React 全家桶（含 scheduler）
-            if (id.includes('node_modules/react') ||
-                id.includes('node_modules/react-dom') ||
-                id.includes('node_modules/scheduler')) {
+            if (
+              id.includes('node_modules/react') ||
+              id.includes('node_modules/react-dom') ||
+              id.includes('node_modules/scheduler')
+            ) {
               return 'vendor-react'
             }
             // CodeMirror 编辑器核心（体积最大，独立分包避免影响首屏）
-            if (id.includes('node_modules/@codemirror') ||
-                id.includes('node_modules/@lezer') ||
-                id.includes('node_modules/codemirror') ||
-                id.includes('node_modules/crelt') ||
-                id.includes('node_modules/style-mod')) {
+            if (
+              id.includes('node_modules/@codemirror') ||
+              id.includes('node_modules/@lezer') ||
+              id.includes('node_modules/codemirror') ||
+              id.includes('node_modules/crelt') ||
+              id.includes('node_modules/style-mod')
+            ) {
               return 'vendor-codemirror'
             }
             // Markdown 渲染 + 代码高亮
-            if (id.includes('node_modules/markdown-it') ||
-                id.includes('node_modules/highlight.js') ||
-                id.includes('node_modules/entities') ||
-                id.includes('node_modules/linkify-it') ||
-                id.includes('node_modules/mdurl') ||
-                id.includes('node_modules/uc.micro')) {
+            if (
+              id.includes('node_modules/markdown-it') ||
+              id.includes('node_modules/highlight.js') ||
+              id.includes('node_modules/entities') ||
+              id.includes('node_modules/linkify-it') ||
+              id.includes('node_modules/mdurl') ||
+              id.includes('node_modules/uc.micro')
+            ) {
               return 'vendor-render'
             }
             // KaTeX 数学公式（仅预览面板使用，独立分包可延迟加载）

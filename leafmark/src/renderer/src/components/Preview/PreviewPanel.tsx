@@ -110,9 +110,15 @@ interface PreviewPanelProps {
   isSyncing?: React.MutableRefObject<boolean>
 }
 
-export default function PreviewPanel({ onScroll, onRegisterScrollTo, isSyncing }: PreviewPanelProps) {
+export default function PreviewPanel({
+  onScroll,
+  onRegisterScrollTo,
+  isSyncing
+}: PreviewPanelProps) {
   // 组件挂载时动态加载 KaTeX CSS
-  useEffect(() => { ensureKatexCss() }, [])
+  useEffect(() => {
+    ensureKatexCss()
+  }, [])
 
   const containerRef = useRef<HTMLDivElement>(null)
   const openTabs = useNoteStore((s) => s.openTabs)

@@ -174,7 +174,7 @@
 }
 
 /* — Task Lists — */
-.content input[type="checkbox"] {
+.content input[type='checkbox'] {
   margin-right: 6px;
   accent-color: var(--accent-color);
 }

@@ -72,6 +72,8 @@ export function getWorkspaceDir(): string {
       const state = JSON.parse(raw)
       return state?.state?.workspaceDir || ''
     }
-  } catch {/* */}
+  } catch {
+    /* */
+  }
   return ''
 }

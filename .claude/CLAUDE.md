@@ -18,12 +18,19 @@ pnpm typecheck:node   # 仅检查主进程/预加载类型
 pnpm typecheck:web    # 仅检查渲染进程类型
 ```
 
+注意：所有命令需在 `leafmark/` 目录下执行。
+
+## 项目结构
+
+仓库根目录包含 `leafmark/`（实际 Electron 应用）和 `plan.md`（迁移计划文档）。开发工作在 `leafmark/` 内进行。
+
 ## 技术栈
 
 - **桌面框架**: Electron 39，使用 `electron-vite` 构建
 - **前端**: React 19 + TypeScript，Vite 7 开发服务器
 - **编辑器**: CodeMirror 6（`@codemirror/view`, `@codemirror/lang-markdown`）
 - **Markdown 渲染**: `markdown-it` + `highlight.js`
+- **数学公式**: KaTeX（支持 `$...$` 行内和 `$$...$$` 块级）
 - **状态管理**: Zustand（`persist` 中间件持久化到 localStorage）
 - **样式**: CSS Modules + CSS 自定义属性主题系统
 - **包管理**: pnpm

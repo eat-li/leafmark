@@ -2,13 +2,7 @@ import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { useNoteStore } from '../../store/noteStore'
 import { dialog } from '../../api/electron'
 import FileTreeNode from './FileTreeNode'
-import {
-  IconNewFile,
-  IconNewFolder,
-  IconImport,
-  IconRefresh,
-  IconSearch
-} from '../Icons'
+import { IconNewFile, IconNewFolder, IconImport, IconRefresh, IconSearch } from '../Icons'
 import styles from './Sidebar.module.css'
 
 export default function Sidebar() {
@@ -46,16 +40,13 @@ export default function Sidebar() {
     return () => document.removeEventListener('mousedown', close)
   }, [contextMenu])
 
-  const handleTreeContextMenu = useCallback(
-    (e: React.MouseEvent) => {
-      // 只在空白区域触发，如果点击的是文件节点则跳过（由 FileTreeNode 自行处理）
-      const target = e.target as HTMLElement
-      if (target.closest('[data-tree-node]')) return
-      e.preventDefault()
-      setContextMenu({ x: e.clientX, y: e.clientY })
-    },
-    []
-  )
+  const handleTreeContextMenu = useCallback((e: React.MouseEvent) => {
+    // 只在空白区域触发，如果点击的是文件节点则跳过（由 FileTreeNode 自行处理）
+    const target = e.target as HTMLElement
+    if (target.closest('[data-tree-node]')) return
+    e.preventDefault()
+    setContextMenu({ x: e.clientX, y: e.clientY })
+  }, [])
 
   // 获取所有标签
   const allTags = useMemo(() => {
@@ -218,9 +209,7 @@ export default function Sidebar() {
 
       <div className={styles.tree} onContextMenu={handleTreeContextMenu}>
         {filteredTree.length === 0 ? (
-          <div className={styles.empty}>
-            {tagFilter ? '该标签下暂无文件' : '暂无文件'}
-          </div>
+          <div className={styles.empty}>{tagFilter ? '该标签下暂无文件' : '暂无文件'}</div>
         ) : (
           filteredTree.map((node) => <FileTreeNode key={node.path} node={node} level={0} />)
         )}

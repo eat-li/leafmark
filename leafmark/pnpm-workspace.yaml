@@ -2,3 +2,4 @@ allowBuilds:
   electron: false
   electron-winstaller: false
   esbuild: false
+  node-pty: false
