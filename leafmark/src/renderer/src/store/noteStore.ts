@@ -20,6 +20,7 @@ export interface OpenTab {
 
 export type ViewMode = 'edit' | 'split' | 'preview'
 export type Theme = 'light' | 'dark' | 'system'
+export type BackgroundPosition = 'center' | 'tile' | 'stretch'
 
 // 支持预览的图片扩展名
 export const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp']
@@ -74,6 +75,12 @@ interface NoteState {
   tagFilter: string
   welcomed: boolean
 
+  // 背景图片设置
+  backgroundImage: string | null
+  backgroundImagePosition: BackgroundPosition
+  backgroundImageOpacity: number
+  backgroundImageBlur: number
+
   // actions
   setWorkspaceDir: (dir: string) => void
   initWorkspace: () => Promise<void>
@@ -111,6 +118,12 @@ interface NoteState {
   removeTag: (filePath: string, tagName: string) => void
   setTagFilter: (tag: string) => void
   setWorkspaceDirAndRefresh: (dir: string) => Promise<void>
+
+  // 背景图片设置方法
+  setBackgroundImage: (image: string | null) => void
+  setBackgroundImagePosition: (position: BackgroundPosition) => void
+  setBackgroundImageOpacity: (opacity: number) => void
+  setBackgroundImageBlur: (blur: number) => void
 }
 
 export const useNoteStore = create<NoteState>()(
@@ -139,6 +152,12 @@ export const useNoteStore = create<NoteState>()(
       tagColors: {},
       tagFilter: '',
       welcomed: false,
+
+      // 背景图片初始值
+      backgroundImage: null,
+      backgroundImagePosition: 'center',
+      backgroundImageOpacity: 30,
+      backgroundImageBlur: 0,
 
       setWorkspaceDir: (dir) => set({ workspaceDir: dir }),
 
@@ -412,7 +431,13 @@ export const useNoteStore = create<NoteState>()(
         set({ workspaceDir: dir })
         const tree = await fs.readDirTree(dir)
         set({ fileTree: tree })
-      }
+      },
+
+      // 背景图片设置方法
+      setBackgroundImage: (image) => set({ backgroundImage: image }),
+      setBackgroundImagePosition: (position) => set({ backgroundImagePosition: position }),
+      setBackgroundImageOpacity: (opacity) => set({ backgroundImageOpacity: Math.max(0, Math.min(100, opacity)) }),
+      setBackgroundImageBlur: (blur) => set({ backgroundImageBlur: Math.max(0, Math.min(20, blur)) })
     }),
     {
       name: 'leafmark-storage',
@@ -430,7 +455,11 @@ export const useNoteStore = create<NoteState>()(
         tags: state.tags,
         tagColors: state.tagColors,
         writingStats: state.writingStats,
-        welcomed: state.welcomed
+        welcomed: state.welcomed,
+        backgroundImage: state.backgroundImage,
+        backgroundImagePosition: state.backgroundImagePosition,
+        backgroundImageOpacity: state.backgroundImageOpacity,
+        backgroundImageBlur: state.backgroundImageBlur
       })
     }
   )

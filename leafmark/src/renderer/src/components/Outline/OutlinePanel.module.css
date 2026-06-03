@@ -2,7 +2,14 @@
   position: fixed;
   inset: 0;
   z-index: 90;
-  animation: fadeIn 0.12s ease;
+}
+
+.overlayEnter {
+  animation: fadeIn 0.12s ease forwards;
+}
+
+.overlayExit {
+  animation: fadeOut 0.12s ease forwards;
 }
 
 @keyframes fadeIn {
@@ -11,6 +18,15 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }
 
@@ -29,7 +45,14 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: slideDown 0.15s ease;
+}
+
+.panelEnter {
+  animation: slideDown 0.15s ease forwards;
+}
+
+.panelExit {
+  animation: slideUp 0.12s ease forwards;
 }
 
 @keyframes slideDown {
@@ -40,6 +63,17 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
   }
 }
 

@@ -10,6 +10,10 @@ export default function TabBar() {
   const closeTab = useNoteStore((s) => s.closeTab)
   const saveFile = useNoteStore((s) => s.saveFile)
 
+  // 滑动指示器状态
+  const tabsRef = useRef<HTMLDivElement>(null)
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 })
+
   // 待关闭确认的标签页
   const [pendingClose, setPendingClose] = useState<{
     path: string
@@ -39,6 +43,22 @@ export default function TabBar() {
     () => openTabs.map((t) => ({ path: t.path, name: t.name, modified: t.modified })),
     [openTabs]
   )
+
+  // 更新滑动指示器位置
+  useEffect(() => {
+    const tabsContainer = tabsRef.current
+    if (!tabsContainer) return
+
+    const activeTab = tabsContainer.querySelector(`.${styles.active}`) as HTMLElement
+    if (activeTab) {
+      const containerRect = tabsContainer.getBoundingClientRect()
+      const tabRect = activeTab.getBoundingClientRect()
+      setIndicatorStyle({
+        left: tabRect.left - containerRect.left,
+        width: tabRect.width
+      })
+    }
+  }, [activeTabPath, tabDisplayData])
 
   const handleCloseClick = useCallback(
     (e: React.MouseEvent, path: string, name: string, modified: boolean) => {
@@ -119,7 +139,7 @@ export default function TabBar() {
 
   return (
     <div className={styles.tabBar} onContextMenu={handleContextMenu}>
-      <div className={styles.tabs}>
+      <div className={styles.tabs} ref={tabsRef}>
         {tabDisplayData.map((tab) => (
           <div
             key={tab.path}
@@ -138,6 +158,13 @@ export default function TabBar() {
             </button>
           </div>
         ))}
+        <div
+          className={styles.indicator}
+          style={{
+            left: `${indicatorStyle.left}px`,
+            width: `${indicatorStyle.width}px`
+          }}
+        />
       </div>
 
       {contextMenu && (

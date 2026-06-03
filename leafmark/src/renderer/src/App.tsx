@@ -22,6 +22,7 @@ import Toolbar from './components/Toolbar/Toolbar'
 import TabBar from './components/TabBar/TabBar'
 import EditorPanel from './components/Editor/EditorPanel'
 import StatusBar from './components/StatusBar/StatusBar'
+import BackgroundImage from './components/BackgroundImage/BackgroundImage'
 
 // 懒加载非首屏组件，减少初始 bundle 体积
 const PreviewPanel = lazy(() => import('./components/Preview/PreviewPanel'))
@@ -268,10 +269,13 @@ function App(): React.JSX.Element {
 
   return (
     <div className="app">
+      <BackgroundImage />
       <TitleBar />
       <Toolbar onInsertFormat={handleInsertFormat} />
       <div className="app-body">
-        {sidebarVisible && <Sidebar />}
+        <div className={`sidebar-container ${sidebarVisible ? '' : 'sidebar-hidden'}`}>
+          <Sidebar />
+        </div>
         <div className="main-content">
           <TabBar />
           <div className="editor-area">

@@ -1,5 +1,6 @@
 import { useMemo, useCallback } from 'react'
 import { useNoteStore } from '../../store/noteStore'
+import { useAnimatedVisibility } from '../../hooks/useAnimatedVisibility'
 import styles from './OutlinePanel.module.css'
 
 interface Heading {
@@ -41,6 +42,8 @@ export default function OutlinePanel({ onScrollToLine }: OutlinePanelProps) {
   const openTabs = useNoteStore((s) => s.openTabs)
   const activeTabPath = useNoteStore((s) => s.activeTabPath)
 
+  const { shouldRender, animationClass, onAnimationEnd } = useAnimatedVisibility(showOutline, 200, 150)
+
   const activeTab = openTabs.find((t) => t.path === activeTabPath)
 
   const headings = useMemo(() => {
@@ -56,11 +59,18 @@ export default function OutlinePanel({ onScrollToLine }: OutlinePanelProps) {
     [onScrollToLine, setShowOutline]
   )
 
-  if (!showOutline) return null
+  if (!shouldRender) return null
 
   return (
-    <div className={styles.overlay} onClick={() => setShowOutline(false)}>
-      <div className={styles.panel} onClick={(e) => e.stopPropagation()}>
+    <div
+      className={`${styles.overlay} ${animationClass === 'enter' ? styles.overlayEnter : animationClass === 'exit' ? styles.overlayExit : ''}`}
+      onClick={() => setShowOutline(false)}
+      onAnimationEnd={onAnimationEnd}
+    >
+      <div
+        className={`${styles.panel} ${animationClass === 'enter' ? styles.panelEnter : animationClass === 'exit' ? styles.panelExit : ''}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className={styles.header}>
           <span className={styles.title}>大纲</span>
           <button className={styles.closeBtn} onClick={() => setShowOutline(false)}>

@@ -4,6 +4,7 @@ import { useNoteStore, IMAGE_EXTENSIONS } from '../../store/noteStore'
 import { shell, fs } from '../../api/electron'
 import { saveAsTemplate } from '../../utils/template'
 import { IconChevronDown, IconChevronRight, IconFile, IconImageFile } from '../Icons'
+import { Collapsible } from '../Collapsible'
 import styles from './FileTreeNode.module.css'
 
 interface FileTreeNodeProps {
@@ -339,8 +340,8 @@ function FileTreeNode({ node, level }: FileTreeNodeProps) {
         )}
       </div>
 
-      {node.type === 'directory' && expanded && (
-        <>
+      {node.type === 'directory' && (
+        <Collapsible expanded={expanded} duration={200}>
           {inputMode && (
             <div className={styles.inputRow} style={{ paddingLeft: `${(level + 1) * 16 + 8}px` }}>
               <input
@@ -360,7 +361,7 @@ function FileTreeNode({ node, level }: FileTreeNodeProps) {
           {node.children?.map((child) => (
             <FileTreeNode key={child.path} node={child} level={level + 1} />
           ))}
-        </>
+        </Collapsible>
       )}
     </div>
   )

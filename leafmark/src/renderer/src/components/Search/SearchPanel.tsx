@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNoteStore } from '../../store/noteStore'
 import { fs } from '../../api/electron'
+import { useAnimatedVisibility } from '../../hooks/useAnimatedVisibility'
 import styles from './SearchPanel.module.css'
 
 interface SearchResult {
@@ -26,6 +27,8 @@ export default function SearchPanel() {
   const [results, setResults] = useState<SearchResult[]>([])
   const [searching, setSearching] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const { shouldRender, animationClass, onAnimationEnd } = useAnimatedVisibility(showSearch, 200, 150)
 
   useEffect(() => {
     if (showSearch && inputRef.current) {
@@ -105,11 +108,18 @@ export default function SearchPanel() {
     [openFile]
   )
 
-  if (!showSearch) return null
+  if (!shouldRender) return null
 
   return (
-    <div className={styles.overlay} onClick={() => setShowSearch(false)}>
-      <div className={styles.panel} onClick={(e) => e.stopPropagation()}>
+    <div
+      className={`${styles.overlay} ${animationClass === 'enter' ? styles.overlayEnter : animationClass === 'exit' ? styles.overlayExit : ''}`}
+      onClick={() => setShowSearch(false)}
+      onAnimationEnd={onAnimationEnd}
+    >
+      <div
+        className={`${styles.panel} ${animationClass === 'enter' ? styles.panelEnter : animationClass === 'exit' ? styles.panelExit : ''}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className={styles.header}>
           <span className={styles.title}>全文搜索</span>
           <button className={styles.closeBtn} onClick={() => setShowSearch(false)}>

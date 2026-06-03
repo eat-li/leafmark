@@ -1,0 +1,63 @@
+.container {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.defaultBackground {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-primary);
+}
+
+.image {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  transition: opacity 0.3s ease,
+    filter 0.3s ease;
+}
+
+/* 位置模式：居中 */
+.positionCenter {
+  background-size: contain;
+  background-position: center;
+}
+
+/* 位置模式：拉伸 */
+.positionStretch {
+  background-size: 100% 100%;
+  background-position: center;
+}
+
+/* 位置模式：平铺 */
+.positionTile {
+  background-size: auto;
+  background-repeat: repeat;
+  background-position: center;
+}
+
+.loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
