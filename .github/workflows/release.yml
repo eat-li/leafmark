@@ -1,0 +1,194 @@
+name: Release
+
+# 推送 v* 标签时触发，例如 v1.0.0、v1.2.3-beta
+on:
+  push:
+    tags:
+      - 'v*'
+
+# 取消同一 tag 的重复运行
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  # ─────────────────────────────────────
+  # Windows 构建
+  # ─────────────────────────────────────
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: leafmark/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: leafmark
+        run: pnpm install --frozen-lockfile
+
+      - name: Build & Package
+        working-directory: leafmark
+        run: pnpm build:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installers
+          path: |
+            leafmark/dist/*.exe
+            leafmark/dist/*.msi
+          if-no-files-found: warn
+          retention-days: 1
+
+  # ─────────────────────────────────────
+  # macOS 构建
+  # ─────────────────────────────────────
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: leafmark/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: leafmark
+        run: pnpm install --frozen-lockfile
+
+      - name: Build & Package
+        working-directory: leafmark
+        run: pnpm build:mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-installers
+          path: |
+            leafmark/dist/*.dmg
+          if-no-files-found: warn
+          retention-days: 1
+
+  # ─────────────────────────────────────
+  # Linux 构建
+  # ─────────────────────────────────────
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: leafmark/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: leafmark
+        run: pnpm install --frozen-lockfile
+
+      - name: Build & Package
+        working-directory: leafmark
+        run: pnpm build:linux
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-installers
+          path: |
+            leafmark/dist/*.AppImage
+            leafmark/dist/*.snap
+            leafmark/dist/*.deb
+          if-no-files-found: warn
+          retention-days: 1
+
+  # ─────────────────────────────────────
+  # 发布 Release
+  # ─────────────────────────────────────
+  release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List artifacts
+        run: find artifacts -type f | head -50
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # 获取上一个 tag
+          PREV_TAG=$(git tag --sort=-v:refname | head -2 | tail -1)
+          CURRENT_TAG=${GITHUB_REF#refs/tags/}
+
+          echo "## What's Changed" > changelog.md
+          echo "" >> changelog.md
+
+          if [ -n "$PREV_TAG" ] && [ "$PREV_TAG" != "$CURRENT_TAG" ]; then
+            git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s (%h)" --no-merges >> changelog.md
+          else
+            git log --pretty=format:"- %s (%h)" --no-merges -20 >> changelog.md
+          fi
+
+          echo "" >> changelog.md
+          echo "" >> changelog.md
+          echo "---" >> changelog.md
+          echo "" >> changelog.md
+          echo "### 📦 下载安装包" >> changelog.md
+          echo "" >> changelog.md
+          echo "| 平台 | 文件 |" >> changelog.md
+          echo "|------|------|" >> changelog.md
+          echo "| Windows | \`LeafMark-*-setup.exe\` |" >> changelog.md
+          echo "| macOS | \`LeafMark-*.dmg\` |" >> changelog.md
+          echo "| Linux | \`LeafMark-*.AppImage\` / \`.snap\` / \`.deb\` |" >> changelog.md
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: LeafMark ${{ github.ref_name }}
+          body_path: changelog.md
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: artifacts/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
