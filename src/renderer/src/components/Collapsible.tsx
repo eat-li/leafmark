@@ -20,6 +20,7 @@ export function Collapsible({ expanded, children, duration = 200 }: CollapsibleP
     if (expanded) {
       // 展开：从 0 到内容高度
       const contentHeight = content.scrollHeight
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 动画需要同步设置初始状态
       setHeight(0)
       // 强制重绘
       requestAnimationFrame(() => {
@@ -45,7 +46,7 @@ export function Collapsible({ expanded, children, duration = 200 }: CollapsibleP
     opacity: expanded ? 1 : 0,
     transitionProperty: 'height, opacity',
     transitionDuration: `${duration}ms, ${duration * 0.6}ms`,
-    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)'
   }
 
   return (

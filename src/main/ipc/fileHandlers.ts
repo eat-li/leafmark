@@ -2,7 +2,7 @@ import { ipcMain, app, dialog, BrowserWindow, clipboard, shell } from 'electron'
 import { promises as fsp } from 'fs'
 import fs from 'fs'
 import path from 'path'
-import { execFile } from 'child_process'
+import { execFile, exec } from 'child_process'
 
 interface FileEntry {
   name: string
@@ -47,16 +47,16 @@ export function registerFileHandlers(): void {
   ipcMain.handle('fs:readDirTree', async (_, dirPath: string, depth?: number) => {
     try {
       return await readDirTree(dirPath, depth ?? 10)
-    } catch (err: any) {
-      throw new Error(`读取目录失败: ${err.message}`)
+    } catch (err: unknown) {
+      throw new Error(`读取目录失败: ${err instanceof Error ? err.message : String(err)}`)
     }
   })
 
   ipcMain.handle('fs:readFile', async (_, filePath: string) => {
     try {
       return await fsp.readFile(filePath, 'utf-8')
-    } catch (err: any) {
-      throw new Error(`读取文件失败: ${err.message}`)
+    } catch (err: unknown) {
+      throw new Error(`读取文件失败: ${err instanceof Error ? err.message : String(err)}`)
     }
   })
 
@@ -67,8 +67,8 @@ export function registerFileHandlers(): void {
         await fsp.mkdir(dir, { recursive: true })
       }
       await fsp.writeFile(filePath, content, 'utf-8')
-    } catch (err: any) {
-      throw new Error(`写入文件失败: ${err.message}`)
+    } catch (err: unknown) {
+      throw new Error(`写入文件失败: ${err instanceof Error ? err.message : String(err)}`)
     }
   })
 
@@ -82,16 +82,16 @@ export function registerFileHandlers(): void {
         await fsp.mkdir(dir, { recursive: true })
       }
       await fsp.writeFile(filePath, '', 'utf-8')
-    } catch (err: any) {
-      throw new Error(err.message || `创建文件失败`)
+    } catch (err: unknown) {
+      throw new Error(err instanceof Error ? err.message : `创建文件失败`)
     }
   })
 
   ipcMain.handle('fs:createFolder', async (_, folderPath: string) => {
     try {
       await fsp.mkdir(folderPath, { recursive: true })
-    } catch (err: any) {
-      throw new Error(`创建文件夹失败: ${err.message}`)
+    } catch (err: unknown) {
+      throw new Error(`创建文件夹失败: ${err instanceof Error ? err.message : String(err)}`)
     }
   })
 
@@ -103,16 +103,16 @@ export function registerFileHandlers(): void {
       } else {
         await fsp.unlink(targetPath)
       }
-    } catch (err: any) {
-      throw new Error(`删除失败: ${err.message}`)
+    } catch (err: unknown) {
+      throw new Error(`删除失败: ${err instanceof Error ? err.message : String(err)}`)
     }
   })
 
   ipcMain.handle('fs:renamePath', async (_, oldPath: string, newPath: string) => {
     try {
       await fsp.rename(oldPath, newPath)
-    } catch (err: any) {
-      throw new Error(`重命名失败: ${err.message}`)
+    } catch (err: unknown) {
+      throw new Error(`重命名失败: ${err instanceof Error ? err.message : String(err)}`)
     }
   })
 
@@ -211,7 +211,7 @@ export function registerFileHandlers(): void {
         `reg add "HKCU\\Software\\Classes\\${PROG_ID}\\shell\\open\\command" /ve /d "\\"${exePath}\\" \\"%1\\"" /f`
       ].join(' ')
 
-      require('child_process').exec(cmd, (err: any) => {
+      exec(cmd, (err) => {
         resolve(!err)
       })
     })
@@ -263,8 +263,8 @@ export function registerFileHandlers(): void {
       const data = base64.replace(/^data:image\/png;base64,/, '')
       await fsp.writeFile(filePath, Buffer.from(data, 'base64'))
       return `assets/${fileName}`
-    } catch (err: any) {
-      console.error('保存图片失败:', err.message)
+    } catch (err: unknown) {
+      console.error('保存图片失败:', err instanceof Error ? err.message : err)
       throw err
     }
   })

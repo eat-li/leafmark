@@ -111,7 +111,6 @@ interface NoteState {
   removeTag: (filePath: string, tagName: string) => void
   setTagFilter: (tag: string) => void
   setWorkspaceDirAndRefresh: (dir: string) => Promise<void>
-
 }
 
 export const useNoteStore = create<NoteState>()(
@@ -413,8 +412,7 @@ export const useNoteStore = create<NoteState>()(
         set({ workspaceDir: dir })
         const tree = await fs.readDirTree(dir)
         set({ fileTree: tree })
-      },
-
+      }
     }),
     {
       name: 'leafmark-storage',

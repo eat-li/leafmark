@@ -72,8 +72,8 @@ function FileTreeNode({ node, level }: FileTreeNodeProps) {
     if (newName && newName !== node.name) {
       try {
         await useNoteStore.getState().renameItem(node.path, newName)
-      } catch (e: any) {
-        alert(e.message || '重命名失败')
+      } catch (e: unknown) {
+        alert(e instanceof Error ? e.message : '重命名失败')
       }
     }
     setRenaming(false)
@@ -84,8 +84,8 @@ function FileTreeNode({ node, level }: FileTreeNodeProps) {
     if (confirm(`确定删除 "${node.name}" 吗？`)) {
       try {
         await useNoteStore.getState().deleteItem(node.path)
-      } catch (e: any) {
-        alert(e.message || '删除失败')
+      } catch (e: unknown) {
+        alert(e instanceof Error ? e.message : '删除失败')
       }
     }
   }, [node.name, node.path, closeMenu])
@@ -107,8 +107,8 @@ function FileTreeNode({ node, level }: FileTreeNodeProps) {
       const workspaceDir = useNoteStore.getState().workspaceDir
       await saveAsTemplate(workspaceDir, name, content)
       setShowSaveAsTemplate(false)
-    } catch (e: any) {
-      alert(e.message || '保存模板失败')
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : '保存模板失败')
     }
   }, [templateName, node.path])
 
@@ -137,8 +137,8 @@ function FileTreeNode({ node, level }: FileTreeNodeProps) {
       } else {
         await useNoteStore.getState().createFolder(node.path, inputValue.trim())
       }
-    } catch (e: any) {
-      alert(e.message || '创建失败')
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : '创建失败')
     }
     setInputMode(null)
     setInputValue('')

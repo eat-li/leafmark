@@ -28,7 +28,11 @@ export default function SearchPanel() {
   const [searching, setSearching] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const { shouldRender, animationClass, onAnimationEnd } = useAnimatedVisibility(showSearch, 200, 150)
+  const { shouldRender, animationClass, onAnimationEnd } = useAnimatedVisibility(
+    showSearch,
+    200,
+    150
+  )
 
   useEffect(() => {
     if (showSearch && inputRef.current) {

@@ -7,13 +7,23 @@ import styles from './SettingsPanel.module.css'
 
 export default function SettingsPanel() {
   const showSettings = useNoteStore((s) => s.showSettings)
-  const { shouldRender, animationClass, onAnimationEnd } = useAnimatedVisibility(showSettings, 200, 150)
+  const { shouldRender, animationClass, onAnimationEnd } = useAnimatedVisibility(
+    showSettings,
+    200,
+    150
+  )
 
   if (!shouldRender) return null
   return <SettingsPanelContent animationClass={animationClass} onAnimationEnd={onAnimationEnd} />
 }
 
-function SettingsPanelContent({ animationClass, onAnimationEnd }: { animationClass: string; onAnimationEnd: () => void }) {
+function SettingsPanelContent({
+  animationClass,
+  onAnimationEnd
+}: {
+  animationClass: string
+  onAnimationEnd: () => void
+}) {
   const setShowSettings = useNoteStore((s) => s.setShowSettings)
   const theme = useNoteStore((s) => s.theme)
   const setTheme = useNoteStore((s) => s.setTheme)

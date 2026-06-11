@@ -44,13 +44,7 @@ export default defineConfig({
 
     // 开发阶段：预打包重型依赖，避免启动时反复重建
     optimizeDeps: {
-      include: [
-        'react',
-        'react-dom',
-        'zustand',
-        'markdown-it',
-        'katex'
-      ],
+      include: ['react', 'react-dom', 'zustand', 'markdown-it', 'katex'],
       // CodeMirror 和 highlight.js 按需加载，不参与预打包
       exclude: ['@codemirror/language-data']
     },

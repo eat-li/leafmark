@@ -24,7 +24,7 @@ function parseHeadings(content: string): Heading[] {
     if (match) {
       headings.push({
         level: match[1].length,
-        text: match[2].replace(/[#*`~_\[\]]/g, '').trim(),
+        text: match[2].replace(/[#*`~_[]]/g, '').trim(),
         line: i + 1
       })
     }
@@ -42,10 +42,15 @@ export default function OutlinePanel({ onScrollToLine }: OutlinePanelProps) {
   const openTabs = useNoteStore((s) => s.openTabs)
   const activeTabPath = useNoteStore((s) => s.activeTabPath)
 
-  const { shouldRender, animationClass, onAnimationEnd } = useAnimatedVisibility(showOutline, 200, 150)
+  const { shouldRender, animationClass, onAnimationEnd } = useAnimatedVisibility(
+    showOutline,
+    200,
+    150
+  )
 
   const activeTab = openTabs.find((t) => t.path === activeTabPath)
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization -- React Compiler 无法推断可选链依赖
   const headings = useMemo(() => {
     if (!activeTab?.content) return []
     return parseHeadings(activeTab.content)

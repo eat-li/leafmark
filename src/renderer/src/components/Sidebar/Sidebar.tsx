@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
-import { useNoteStore } from '../../store/noteStore'
+import { useNoteStore, type FileEntry } from '../../store/noteStore'
 import { dialog } from '../../api/electron'
 import FileTreeNode from './FileTreeNode'
 import { IconNewFile, IconNewFolder, IconImport, IconRefresh, IconSearch } from '../Icons'
@@ -81,8 +81,8 @@ export default function Sidebar() {
       await createNote(workspaceDir, newItemName.trim())
       setShowNewFileInput(false)
       setNewItemName('')
-    } catch (e: any) {
-      setError(e.message || '创建失败')
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : '创建失败')
     }
   }
 
@@ -97,8 +97,8 @@ export default function Sidebar() {
       await createFolder(workspaceDir, newItemName.trim())
       setShowNewFolderInput(false)
       setNewItemName('')
-    } catch (e: any) {
-      setError(e.message || '创建失败')
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : '创建失败')
     }
   }
 
@@ -112,8 +112,8 @@ export default function Sidebar() {
       if (paths && paths.length > 0) {
         await importFile(paths)
       }
-    } catch (e: any) {
-      setError(e.message || '导入失败')
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : '导入失败')
     }
   }
 
@@ -255,8 +255,8 @@ export default function Sidebar() {
   )
 }
 
-function filterTree(nodes: any[], filter: string): any[] {
-  return nodes.reduce((acc: any[], node: any) => {
+function filterTree(nodes: FileEntry[], filter: string): FileEntry[] {
+  return nodes.reduce((acc: FileEntry[], node: FileEntry) => {
     if (node.type === 'directory') {
       const children = filterTree(node.children || [], filter)
       if (children.length > 0) {
@@ -269,8 +269,12 @@ function filterTree(nodes: any[], filter: string): any[] {
   }, [])
 }
 
-function filterTreeByTag(nodes: any[], tag: string, tags: Record<string, string[]>): any[] {
-  return nodes.reduce((acc: any[], node: any) => {
+function filterTreeByTag(
+  nodes: FileEntry[],
+  tag: string,
+  tags: Record<string, string[]>
+): FileEntry[] {
+  return nodes.reduce((acc: FileEntry[], node: FileEntry) => {
     if (node.type === 'directory') {
       const children = filterTreeByTag(node.children || [], tag, tags)
       if (children.length > 0) {

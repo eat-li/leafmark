@@ -5,11 +5,16 @@ import { markdown } from '@codemirror/lang-markdown'
 import { defaultKeymap, indentWithTab } from '@codemirror/commands'
 import { search, searchKeymap } from '@codemirror/search'
 import { oneDark } from '@codemirror/theme-one-dark'
-import { syntaxHighlighting, defaultHighlightStyle, HighlightStyle } from '@codemirror/language'
+import {
+  syntaxHighlighting,
+  defaultHighlightStyle,
+  HighlightStyle,
+  type LanguageDescription
+} from '@codemirror/language'
 import { tags } from '@lezer/highlight'
 
 // 语言数据延迟加载：编辑器创建时按需 import，不进入首屏 bundle
-let languageDataPromise: Promise<{ languages: { name: string }[] }> | null = null
+let languageDataPromise: Promise<{ languages: LanguageDescription[] }> | null = null
 function getLanguageData() {
   if (!languageDataPromise) {
     languageDataPromise = import('@codemirror/language-data')

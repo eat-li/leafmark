@@ -15,6 +15,7 @@ export function useAnimatedVisibility(
   useEffect(() => {
     if (isVisible) {
       // 显示：立即渲染并播放进入动画
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 动画需要同步设置初始状态
       setShouldRender(true)
       setAnimationClass('enter')
     } else if (shouldRender) {

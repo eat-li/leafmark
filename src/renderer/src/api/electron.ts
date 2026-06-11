@@ -34,7 +34,7 @@ export const dialog = {
     title?: string
     defaultPath?: string
     filters?: { name: string; extensions: string[] }[]
-  }): Promise<string[]> => api.showOpenDialog(options as any)
+  }): Promise<string[]> => api.showOpenDialog(options as Parameters<typeof api.showOpenDialog>[0])
 }
 
 export const clipboard = {

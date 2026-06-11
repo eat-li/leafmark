@@ -259,6 +259,7 @@ export default function PreviewPanel({
   const html = useMemo(() => {
     if (!activeTab?.content) return ''
     let content = activeTab.content
+    // eslint-disable-next-line react-hooks/refs -- 图片缓存 ref 在渲染时读取是有意设计
     for (const [src, dataUrl] of Object.entries(imageCacheRef.current)) {
       content = content.split(src).join(dataUrl)
     }

@@ -325,7 +325,11 @@ export default function Toolbar({ onInsertFormat }: ToolbarProps) {
       <div className={styles.separator} />
 
       <div className={styles.group}>
-        <button className={styles.btn} onClick={() => setShowSearch(true)} title="全文搜索 (Ctrl+Shift+F)">
+        <button
+          className={styles.btn}
+          onClick={() => setShowSearch(true)}
+          title="全文搜索 (Ctrl+Shift+F)"
+        >
           <IconSearch size={14} />
         </button>
         <button className={styles.btn} onClick={toggleTheme} title="切换主题">

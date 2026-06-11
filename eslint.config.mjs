@@ -26,6 +26,11 @@ export default defineConfig(
     rules: {
       // 关闭显式函数返回类型规则
       '@typescript-eslint/explicit-function-return-type': 'off',
+      // 允许下划线前缀的未使用变量
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
+      ],
       // 保留其它规则
       ...eslintPluginReactHooks.configs.recommended.rules,
       ...eslintPluginReactRefresh.configs.vite.rules

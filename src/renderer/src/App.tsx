@@ -38,7 +38,6 @@ function preloadPreview() {
   }
 }
 
-
 // 静态 JSX 提升：避免每次渲染重新创建（rendering-hoist-jsx）
 const previewFallback = <div className="preview-loading">加载预览...</div>
 
@@ -171,7 +170,7 @@ function App(): React.JSX.Element {
               openFile(p, name)
             }
           })
-          .catch((err: any) => {
+          .catch((err: unknown) => {
             console.error('打开文件失败:', err)
           })
       }
@@ -259,11 +258,18 @@ function App(): React.JSX.Element {
       } else {
         await createNote(workspaceDir, name)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('创建文件失败:', err)
     }
     setShowNewFileDialog(false)
-  }, [newFileName, workspaceDir, createNote, createNoteFromTemplate, selectedTemplateIdx, templates])
+  }, [
+    newFileName,
+    workspaceDir,
+    createNote,
+    createNoteFromTemplate,
+    selectedTemplateIdx,
+    templates
+  ])
 
   const isSplitMode = viewMode === 'split' && syncScroll
 
@@ -332,7 +338,9 @@ function App(): React.JSX.Element {
                     className={`template-item ${selectedTemplateIdx === -1 ? 'template-item-active' : ''}`}
                     onClick={() => setSelectedTemplateIdx(-1)}
                   >
-                    <span className="template-icon"><IconTemplateBlank size={16} /></span>
+                    <span className="template-icon">
+                      <IconTemplateBlank size={16} />
+                    </span>
                     <span>空白笔记</span>
                   </button>
                   {templates.map((tpl, idx) => (
