@@ -8,6 +8,25 @@ let mainWindow: BrowserWindow | null = null
 let tray: Tray | null = null
 let closeToTray = false
 
+// ——— 单实例锁：确保同一时间只有一个进程 ———
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+  app.quit()
+} else {
+  // 第二个实例启动时，将文件路径传给已有实例，然后退出
+  app.on('second-instance', (_, argv) => {
+    const filePath = getFilePathFromArgv(argv)
+    if (filePath) {
+      sendFileToRenderer(filePath)
+    }
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.show()
+      mainWindow.focus()
+    }
+  })
+}
+
 // 待打开的文件路径（由系统传入，如双击 .md 文件）
 // 渲染进程就绪后会通过 IPC 主动拉取
 let pendingOpenFile: string | null = null
@@ -116,19 +135,6 @@ app.on('open-file', (event, filePath) => {
       mainWindow.show()
       mainWindow.focus()
     }
-  }
-})
-
-// Windows/Linux：第二次启动时将文件路径传给已有实例
-app.on('second-instance', (_, argv) => {
-  const filePath = getFilePathFromArgv(argv)
-  if (filePath) {
-    sendFileToRenderer(filePath)
-  }
-  if (mainWindow) {
-    if (mainWindow.isMinimized()) mainWindow.restore()
-    mainWindow.show()
-    mainWindow.focus()
   }
 })
 
