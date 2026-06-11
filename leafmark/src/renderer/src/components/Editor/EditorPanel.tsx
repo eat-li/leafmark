@@ -2,12 +2,20 @@ import { useEffect, useRef, useCallback, useMemo } from 'react'
 import { EditorView, keymap, placeholder as placeholderExt, ViewPlugin } from '@codemirror/view'
 import { EditorState, Extension, Compartment } from '@codemirror/state'
 import { markdown } from '@codemirror/lang-markdown'
-import { languages } from '@codemirror/language-data'
 import { defaultKeymap, indentWithTab } from '@codemirror/commands'
 import { search, searchKeymap } from '@codemirror/search'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { syntaxHighlighting, defaultHighlightStyle, HighlightStyle } from '@codemirror/language'
 import { tags } from '@lezer/highlight'
+
+// 语言数据延迟加载：编辑器创建时按需 import，不进入首屏 bundle
+let languageDataPromise: Promise<{ languages: { name: string }[] }> | null = null
+function getLanguageData() {
+  if (!languageDataPromise) {
+    languageDataPromise = import('@codemirror/language-data')
+  }
+  return languageDataPromise
+}
 import { useNoteStore, IMAGE_EXTENSIONS } from '../../store/noteStore'
 import { clipboard } from '../../api/electron'
 import ImagePreview from '../ImagePreview/ImagePreview'
@@ -402,6 +410,7 @@ export default function EditorPanel({
   // 创建 / 重建编辑器视图
   useEffect(() => {
     if (!editorRef.current) return
+    let cancelled = false
 
     const updateListener = EditorView.updateListener.of((update) => {
       if (update.docChanged && !isInternalUpdate.current) {
@@ -444,69 +453,79 @@ export default function EditorPanel({
       ? [oneDark, leafmarkDarkTheme]
       : [leafmarkLightTheme, syntaxHighlighting(leafmarkLightHighlight)]
 
-    const view = new EditorView({
-      state: EditorState.create({
-        doc: activeTab?.content || '',
-        extensions: [
-          markdown({ codeLanguages: languages }),
-          search(),
-          keymap.of([...defaultKeymap, ...searchKeymap, indentWithTab]),
-          syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-          ...themeExtensions,
-          fontSizeCompartment.of(makeFontSizeExt(fontSize)),
-          typewriterCompartment.of(typewriterMode ? makeTypewriterExt() : []),
-          updateListener,
-          pasteHandler,
-          placeholderExt('开始输入 Markdown...'),
-          EditorView.lineWrapping
-        ]
-      }),
-      parent: editorRef.current
-    })
-
-    viewRef.current = view
-
-    // 每次编辑器重建后，重新注册 scrollToLine 回调（大纲面板跳转用）
-    if (onRegisterScrollToLine) {
-      onRegisterScrollToLine((line: number) => {
-        const v = viewRef.current
-        if (!v) return
-        if (line < 1 || line > v.state.doc.lines) return
-        const pos = v.state.doc.line(line).from
-        // 用 CodeMirror 内置 scrollIntoView 滚动，比手动设 scrollTop 更可靠
-        v.dispatch({
-          selection: { anchor: pos },
-          effects: EditorView.scrollIntoView(pos, { y: 'start', yMargin: 60 })
-        })
-      })
-    }
-
-    // 滚动同步：使用 requestAnimationFrame 轮询
-    let lastScrollTop = -1
+    // 异步加载语言数据后创建编辑器（language-data ~500KB，不进首屏）
+    let view: EditorView | null = null
     let rafId = 0
-    const pollScroll = () => {
-      const scrollDOM = view.scrollDOM
-      const scrollTop = scrollDOM.scrollTop
-      // isSyncing 表示正在被外部（预览面板）驱动滚动，此时不应报告
-      const syncing = isSyncing?.current ?? false
-      if (scrollTop !== lastScrollTop && !syncing) {
-        lastScrollTop = scrollTop
-        const callback = onScrollRef.current
-        if (callback) {
-          const maxScroll = scrollDOM.scrollHeight - scrollDOM.clientHeight
-          if (maxScroll > 0) {
-            callback(scrollTop / maxScroll)
+
+    getLanguageData().then(({ languages }) => {
+      if (cancelled || !editorRef.current) return
+
+      view = new EditorView({
+        state: EditorState.create({
+          doc: activeTab?.content || '',
+          extensions: [
+            markdown({ codeLanguages: languages }),
+            search(),
+            keymap.of([...defaultKeymap, ...searchKeymap, indentWithTab]),
+            syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+            ...themeExtensions,
+            fontSizeCompartment.of(makeFontSizeExt(fontSize)),
+            typewriterCompartment.of(typewriterMode ? makeTypewriterExt() : []),
+            updateListener,
+            pasteHandler,
+            placeholderExt('开始输入 Markdown...'),
+            EditorView.lineWrapping
+          ]
+        }),
+        parent: editorRef.current
+      })
+
+      viewRef.current = view
+
+      // 每次编辑器重建后，重新注册 scrollToLine 回调（大纲面板跳转用）
+      if (onRegisterScrollToLine) {
+        onRegisterScrollToLine((line: number) => {
+          const v = viewRef.current
+          if (!v) return
+          if (line < 1 || line > v.state.doc.lines) return
+          const pos = v.state.doc.line(line).from
+          v.dispatch({
+            selection: { anchor: pos },
+            effects: EditorView.scrollIntoView(pos, { y: 'start', yMargin: 60 })
+          })
+        })
+      }
+
+      // 滚动同步：使用 requestAnimationFrame 轮询
+      let lastScrollTop = -1
+      const pollScroll = () => {
+        if (!view) return
+        const scrollDOM = view.scrollDOM
+        const scrollTop = scrollDOM.scrollTop
+        // isSyncing 表示正在被外部（预览面板）驱动滚动，此时不应报告
+        const syncing = isSyncing?.current ?? false
+        if (scrollTop !== lastScrollTop && !syncing) {
+          lastScrollTop = scrollTop
+          const callback = onScrollRef.current
+          if (callback) {
+            const maxScroll = scrollDOM.scrollHeight - scrollDOM.clientHeight
+            if (maxScroll > 0) {
+              callback(scrollTop / maxScroll)
+            }
           }
         }
+        rafId = requestAnimationFrame(pollScroll)
       }
       rafId = requestAnimationFrame(pollScroll)
-    }
-    rafId = requestAnimationFrame(pollScroll)
+    })
 
     return () => {
+      cancelled = true
       cancelAnimationFrame(rafId)
-      view.destroy()
-      viewRef.current = null
+      if (view) {
+        view.destroy()
+        viewRef.current = null
+      }
     }
   }, [activeTabPath, insertAtCursor, isDark, onRegisterScrollToLine, moveCursorToNextLine]) // eslint-disable-line react-hooks/exhaustive-deps
 
