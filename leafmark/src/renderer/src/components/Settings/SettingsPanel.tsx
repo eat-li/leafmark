@@ -1,11 +1,8 @@
 import { useEffect, useState, useCallback } from 'react'
-import { useNoteStore, type Theme, type BackgroundPosition } from '../../store/noteStore'
+import { useNoteStore, type Theme } from '../../store/noteStore'
 import { dialog, appSettings, fs } from '../../api/electron'
 import { applyTemplate, getBuiltInVars, WELCOME_NOTE_CONTENT } from '../../utils/template'
 import { useAnimatedVisibility } from '../../hooks/useAnimatedVisibility'
-import ImagePicker from '../ImagePicker/ImagePicker'
-import PositionSelector from '../PositionSelector/PositionSelector'
-import Slider from '../Slider/Slider'
 import styles from './SettingsPanel.module.css'
 
 export default function SettingsPanel() {
@@ -30,16 +27,6 @@ function SettingsPanelContent({ animationClass, onAnimationEnd }: { animationCla
   const setAutoSaveInterval = useNoteStore((s) => s.setAutoSaveInterval)
   const closeToTray = useNoteStore((s) => s.closeToTray)
   const setCloseToTray = useNoteStore((s) => s.setCloseToTray)
-
-  // 背景图片设置
-  const backgroundImage = useNoteStore((s) => s.backgroundImage)
-  const setBackgroundImage = useNoteStore((s) => s.setBackgroundImage)
-  const backgroundImagePosition = useNoteStore((s) => s.backgroundImagePosition)
-  const setBackgroundImagePosition = useNoteStore((s) => s.setBackgroundImagePosition)
-  const backgroundImageOpacity = useNoteStore((s) => s.backgroundImageOpacity)
-  const setBackgroundImageOpacity = useNoteStore((s) => s.setBackgroundImageOpacity)
-  const backgroundImageBlur = useNoteStore((s) => s.backgroundImageBlur)
-  const setBackgroundImageBlur = useNoteStore((s) => s.setBackgroundImageBlur)
 
   const [autoLaunch, setAutoLaunch] = useState(false)
   const [fileAssociation, setFileAssociation] = useState(false)
@@ -142,39 +129,6 @@ function SettingsPanelContent({ animationClass, onAnimationEnd }: { animationCla
                 className={styles.range}
               />
             </div>
-          </div>
-
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>背景</h3>
-
-            <ImagePicker
-              value={backgroundImage}
-              onChange={setBackgroundImage}
-              placeholder="选择背景图片"
-            />
-
-            <PositionSelector
-              value={backgroundImagePosition}
-              onChange={(pos) => setBackgroundImagePosition(pos as BackgroundPosition)}
-            />
-
-            <Slider
-              label="透明度"
-              value={backgroundImageOpacity}
-              onChange={setBackgroundImageOpacity}
-              min={0}
-              max={100}
-              unit="%"
-            />
-
-            <Slider
-              label="模糊度"
-              value={backgroundImageBlur}
-              onChange={setBackgroundImageBlur}
-              min={0}
-              max={20}
-              unit="px"
-            />
           </div>
 
           <div className={styles.section}>

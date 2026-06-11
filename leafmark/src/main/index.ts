@@ -1,16 +1,8 @@
-import { app, shell, BrowserWindow, Tray, Menu, ipcMain, protocol, net } from 'electron'
+import { app, shell, BrowserWindow, Tray, Menu, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { registerFileHandlers } from './ipc/fileHandlers'
-
-// 注册自定义协议（必须在 app.ready 之前）
-protocol.registerSchemesAsPrivileged([
-  {
-    scheme: 'app-img',
-    privileges: { bypassCSP: true, secure: true, supportFetchAPI: true, stream: true }
-  }
-])
 
 let mainWindow: BrowserWindow | null = null
 let tray: Tray | null = null
@@ -148,18 +140,6 @@ app.on('open-file', (event, filePath) => {
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.leafmark.editor')
-
-  // 注册 app-img:// 协议处理器：将 URL 映射到本地文件，绕过 CORS
-  // URL 格式：app-img:///C:/path/to/image.png 或 app-img:///home/user/image.png
-  protocol.handle('app-img', (request) => {
-    const url = new URL(request.url)
-    let filePath = decodeURIComponent(url.pathname)
-    // Windows: pathname 以 / 开头，如 /C:/Users/...，需去掉前导 /
-    if (process.platform === 'win32' && filePath.startsWith('/')) {
-      filePath = filePath.slice(1)
-    }
-    return net.fetch(`file:///${filePath}`)
-  })
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
