@@ -1,14 +1,22 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNoteStore } from '../../store/noteStore'
-import { fs } from '../../api/electron'
 import styles from './BackgroundImage.module.css'
 
-// 模块级缓存：路径 → data URL，避免重复 IPC 调用
-const imageUrlCache = new Map<string, string>()
+/**
+ * 将本地文件路径转换为 app-img:// 协议 URL
+ * 该协议在主进程中注册，绕过 CORS 直接提供本地文件
+ */
+function toAppImgUrl(filePath: string): string {
+  // 统一正斜杠
+  const normalized = filePath.replace(/\\/g, '/')
+  // 编码特殊字符，保留 /
+  const encoded = normalized.replace(/ /g, '%20').replace(/#/g, '%23')
+  return `app-img:///${encoded}`
+}
 
 /**
  * 背景图片组件
- * 通过 IPC 加载本地图片为 data URL，带缓存防止重复加载
+ * 使用 app-img:// 协议直接引用本地文件，无需 IPC 转 data URL
  */
 export default function BackgroundImage() {
   const backgroundImage = useNoteStore((s) => s.backgroundImage)
@@ -16,51 +24,41 @@ export default function BackgroundImage() {
   const backgroundImageOpacity = useNoteStore((s) => s.backgroundImageOpacity)
   const backgroundImageBlur = useNoteStore((s) => s.backgroundImageBlur)
 
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [loaded, setLoaded] = useState(false)
+  const [error, setError] = useState(false)
 
+  const imageUrl = useMemo(
+    () => (backgroundImage ? toAppImgUrl(backgroundImage) : null),
+    [backgroundImage]
+  )
+
+  // 预加载图片
   useEffect(() => {
-    if (!backgroundImage) {
-      setImageUrl(null)
-      setLoading(false)
-      return
-    }
-
-    // 命中缓存 → 直接使用，无需等待 IPC
-    const cached = imageUrlCache.get(backgroundImage)
-    if (cached) {
-      setImageUrl(cached)
-      setLoading(false)
+    if (!imageUrl) {
+      setLoaded(false)
+      setError(false)
       return
     }
 
     let cancelled = false
-    setLoading(true)
+    setLoaded(false)
+    setError(false)
 
-    fs.readImageAsDataUrl(backgroundImage)
-      .then((dataUrl) => {
-        if (cancelled) return
-        if (dataUrl) {
-          imageUrlCache.set(backgroundImage, dataUrl)
-          setImageUrl(dataUrl)
-        } else {
-          setImageUrl(null)
-        }
-        setLoading(false)
-      })
-      .catch(() => {
-        if (cancelled) return
-        setImageUrl(null)
-        setLoading(false)
-      })
+    const img = new Image()
+    img.onload = () => {
+      if (!cancelled) setLoaded(true)
+    }
+    img.onerror = () => {
+      if (!cancelled) setError(true)
+    }
+    img.src = imageUrl
 
     return () => {
       cancelled = true
     }
-  }, [backgroundImage])
+  }, [imageUrl])
 
-  // 没有设置背景图片 → 只显示默认背景
-  if (!backgroundImage) {
+  if (!backgroundImage || error) {
     return (
       <div className={styles.container}>
         <div className={styles.defaultBackground} />
@@ -68,8 +66,7 @@ export default function BackgroundImage() {
     )
   }
 
-  // 图片尚未加载完成 → 保持默认背景（不闪烁）
-  if (loading && !imageUrl) {
+  if (!loaded) {
     return (
       <div className={styles.container}>
         <div className={styles.defaultBackground} />
@@ -77,9 +74,8 @@ export default function BackgroundImage() {
     )
   }
 
-  // 有图片（已缓存或刚加载完）→ 叠加显示
   const backgroundStyle: React.CSSProperties = {
-    backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
+    backgroundImage: `url(${imageUrl})`,
     opacity: backgroundImageOpacity / 100,
     filter: backgroundImageBlur > 0 ? `blur(${backgroundImageBlur}px)` : undefined
   }
@@ -90,9 +86,7 @@ export default function BackgroundImage() {
   return (
     <div className={styles.container}>
       <div className={styles.defaultBackground} />
-      {imageUrl && (
-        <div className={`${styles.image} ${positionClass}`} style={backgroundStyle} />
-      )}
+      <div className={`${styles.image} ${positionClass}`} style={backgroundStyle} />
     </div>
   )
 }
