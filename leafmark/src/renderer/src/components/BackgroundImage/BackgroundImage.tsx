@@ -1,19 +1,14 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNoteStore } from '../../store/noteStore'
+import { fs } from '../../api/electron'
 import styles from './BackgroundImage.module.css'
 
-/** 将本地文件路径转换为 local-image:// 协议 URL */
-function toLocalImageUrl(filePath: string): string {
-  // 统一用正斜杠，避免 Windows 反斜杠问题
-  const normalized = filePath.replace(/\\/g, '/')
-  // 仅编码 : 和空格等特殊字符，保留 / 使 URL 路径结构正确
-  const encoded = normalized.replace(/:/g, '%3A').replace(/ /g, '%20')
-  return `local-image:///${encoded}`
-}
+// 模块级缓存：路径 → data URL，避免重复 IPC 调用
+const imageUrlCache = new Map<string, string>()
 
 /**
  * 背景图片组件
- * 使用 local-image:// 协议直接从本地文件系统加载，无需 IPC 转 data URL
+ * 通过 IPC 加载本地图片为 data URL，带缓存防止重复加载
  */
 export default function BackgroundImage() {
   const backgroundImage = useNoteStore((s) => s.backgroundImage)
@@ -21,49 +16,51 @@ export default function BackgroundImage() {
   const backgroundImageOpacity = useNoteStore((s) => s.backgroundImageOpacity)
   const backgroundImageBlur = useNoteStore((s) => s.backgroundImageBlur)
 
-  const [loaded, setLoaded] = useState(false)
-  const [error, setError] = useState(false)
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
-  // 将路径转为 URL，路径不变则 URL 不变
-  const imageUrl = useMemo(
-    () => (backgroundImage ? toLocalImageUrl(backgroundImage) : null),
-    [backgroundImage]
-  )
-
-  // 预加载图片：浏览器解码完成后才显示
   useEffect(() => {
-    if (!imageUrl) {
-      setLoaded(false)
-      setError(false)
+    if (!backgroundImage) {
+      setImageUrl(null)
+      setLoading(false)
+      return
+    }
+
+    // 命中缓存 → 直接使用，无需等待 IPC
+    const cached = imageUrlCache.get(backgroundImage)
+    if (cached) {
+      setImageUrl(cached)
+      setLoading(false)
       return
     }
 
     let cancelled = false
-    setLoaded(false)
-    setError(false)
+    setLoading(true)
 
-    const img = new Image()
-    img.onload = () => {
-      if (!cancelled) {
-        setLoaded(true)
-        setError(false)
-      }
-    }
-    img.onerror = () => {
-      if (!cancelled) {
-        setLoaded(false)
-        setError(true)
-      }
-    }
-    img.src = imageUrl
+    fs.readImageAsDataUrl(backgroundImage)
+      .then((dataUrl) => {
+        if (cancelled) return
+        if (dataUrl) {
+          imageUrlCache.set(backgroundImage, dataUrl)
+          setImageUrl(dataUrl)
+        } else {
+          setImageUrl(null)
+        }
+        setLoading(false)
+      })
+      .catch(() => {
+        if (cancelled) return
+        setImageUrl(null)
+        setLoading(false)
+      })
 
     return () => {
       cancelled = true
     }
-  }, [imageUrl])
+  }, [backgroundImage])
 
-  // 没有背景图片或加载失败 → 只显示默认背景
-  if (!backgroundImage || error) {
+  // 没有设置背景图片 → 只显示默认背景
+  if (!backgroundImage) {
     return (
       <div className={styles.container}>
         <div className={styles.defaultBackground} />
@@ -71,8 +68,8 @@ export default function BackgroundImage() {
     )
   }
 
-  // 图片尚未加载完成 → 显示默认背景（不显示 loading，避免闪烁）
-  if (!loaded) {
+  // 图片尚未加载完成 → 保持默认背景（不闪烁）
+  if (loading && !imageUrl) {
     return (
       <div className={styles.container}>
         <div className={styles.defaultBackground} />
@@ -80,9 +77,9 @@ export default function BackgroundImage() {
     )
   }
 
-  // 图片加载完成 → 叠加显示
+  // 有图片（已缓存或刚加载完）→ 叠加显示
   const backgroundStyle: React.CSSProperties = {
-    backgroundImage: `url(${imageUrl})`,
+    backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
     opacity: backgroundImageOpacity / 100,
     filter: backgroundImageBlur > 0 ? `blur(${backgroundImageBlur}px)` : undefined
   }
@@ -93,7 +90,9 @@ export default function BackgroundImage() {
   return (
     <div className={styles.container}>
       <div className={styles.defaultBackground} />
-      <div className={`${styles.image} ${positionClass}`} style={backgroundStyle} />
+      {imageUrl && (
+        <div className={`${styles.image} ${positionClass}`} style={backgroundStyle} />
+      )}
     </div>
   )
 }
