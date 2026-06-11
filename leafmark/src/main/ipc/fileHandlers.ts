@@ -230,7 +230,16 @@ export function registerFileHandlers(): void {
     try {
       const data = await fsp.readFile(filePath)
       const ext = path.extname(filePath).toLowerCase().replace('.', '')
-      const mime = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : `image/${ext}`
+      const mimeMap: Record<string, string> = {
+        jpg: 'image/jpeg',
+        jpeg: 'image/jpeg',
+        png: 'image/png',
+        gif: 'image/gif',
+        webp: 'image/webp',
+        svg: 'image/svg+xml',
+        bmp: 'image/bmp'
+      }
+      const mime = mimeMap[ext] || `image/${ext}`
       return `data:${mime};base64,${data.toString('base64')}`
     } catch {
       return null

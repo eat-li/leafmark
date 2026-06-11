@@ -29,19 +29,32 @@ export default function ImagePicker({
       return
     }
 
+    let cancelled = false
     setLoading(true)
     setError(false)
 
-    // 尝试读取图片为 data URL
     fs.readImageAsDataUrl(value)
       .then((dataUrl) => {
-        setPreviewUrl(dataUrl)
+        if (cancelled) return
+        if (dataUrl) {
+          setPreviewUrl(dataUrl)
+          setError(false)
+        } else {
+          setPreviewUrl(null)
+          setError(true)
+        }
         setLoading(false)
       })
       .catch(() => {
+        if (cancelled) return
+        setPreviewUrl(null)
         setError(true)
         setLoading(false)
       })
+
+    return () => {
+      cancelled = true
+    }
   }, [value])
 
   const handleSelect = async () => {

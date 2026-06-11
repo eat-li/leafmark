@@ -22,26 +22,39 @@ export default function BackgroundImage() {
   useEffect(() => {
     if (!backgroundImage) {
       setImageUrl(null)
+      setLoading(false)
       setError(false)
       return
     }
 
+    let cancelled = false
     setLoading(true)
     setError(false)
 
-    // 尝试读取图片为 data URL
     fs.readImageAsDataUrl(backgroundImage)
       .then((dataUrl) => {
-        setImageUrl(dataUrl)
+        if (cancelled) return
+        if (dataUrl) {
+          setImageUrl(dataUrl)
+          setError(false)
+        } else {
+          // readImageAsDataUrl 返回 null 表示读取失败
+          setImageUrl(null)
+          setError(true)
+        }
         setLoading(false)
       })
       .catch(() => {
+        if (cancelled) return
+        setImageUrl(null)
         setError(true)
         setLoading(false)
-        // 图片加载失败时清除设置
-        setBackgroundImage(null)
       })
-  }, [backgroundImage, setBackgroundImage])
+
+    return () => {
+      cancelled = true
+    }
+  }, [backgroundImage])
 
   // 如果没有背景图片或加载失败，只显示默认背景
   if (!backgroundImage || error) {
