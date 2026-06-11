@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, Tray, Menu, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, Tray, Menu, ipcMain, protocol, net } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -140,6 +140,16 @@ app.on('open-file', (event, filePath) => {
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.leafmark.editor')
+
+  // 注册自定义协议：直接从本地文件系统提供图片，避免 data URL 的 IPC 开销和不稳定性
+  // URL 格式：local-image:///encoded_path
+  protocol.handle('local-image', (request) => {
+    const url = new URL(request.url)
+    const filePath = decodeURIComponent(url.pathname)
+    // Windows: pathname 以 / 开头，如 /C:/Users/...，需去掉前导 /
+    const normalizedPath = process.platform === 'win32' && filePath.startsWith('/') ? filePath.slice(1) : filePath
+    return net.fetch(`file:///${normalizedPath}`)
+  })
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)

@@ -1,62 +1,68 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNoteStore } from '../../store/noteStore'
-import { fs } from '../../api/electron'
 import styles from './BackgroundImage.module.css'
+
+/** 将本地文件路径转换为 local-image:// 协议 URL */
+function toLocalImageUrl(filePath: string): string {
+  // 统一用正斜杠，避免 Windows 反斜杠问题
+  const normalized = filePath.replace(/\\/g, '/')
+  // 仅编码 : 和空格等特殊字符，保留 / 使 URL 路径结构正确
+  const encoded = normalized.replace(/:/g, '%3A').replace(/ /g, '%20')
+  return `local-image:///${encoded}`
+}
 
 /**
  * 背景图片组件
- * 根据配置渲染背景图片，支持位置、透明度、模糊度设置
+ * 使用 local-image:// 协议直接从本地文件系统加载，无需 IPC 转 data URL
  */
 export default function BackgroundImage() {
   const backgroundImage = useNoteStore((s) => s.backgroundImage)
   const backgroundImagePosition = useNoteStore((s) => s.backgroundImagePosition)
   const backgroundImageOpacity = useNoteStore((s) => s.backgroundImageOpacity)
   const backgroundImageBlur = useNoteStore((s) => s.backgroundImageBlur)
-  const setBackgroundImage = useNoteStore((s) => s.setBackgroundImage)
 
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState(false)
 
-  // 加载图片
+  // 将路径转为 URL，路径不变则 URL 不变
+  const imageUrl = useMemo(
+    () => (backgroundImage ? toLocalImageUrl(backgroundImage) : null),
+    [backgroundImage]
+  )
+
+  // 预加载图片：浏览器解码完成后才显示
   useEffect(() => {
-    if (!backgroundImage) {
-      setImageUrl(null)
-      setLoading(false)
+    if (!imageUrl) {
+      setLoaded(false)
       setError(false)
       return
     }
 
     let cancelled = false
-    setLoading(true)
+    setLoaded(false)
     setError(false)
 
-    fs.readImageAsDataUrl(backgroundImage)
-      .then((dataUrl) => {
-        if (cancelled) return
-        if (dataUrl) {
-          setImageUrl(dataUrl)
-          setError(false)
-        } else {
-          // readImageAsDataUrl 返回 null 表示读取失败
-          setImageUrl(null)
-          setError(true)
-        }
-        setLoading(false)
-      })
-      .catch(() => {
-        if (cancelled) return
-        setImageUrl(null)
+    const img = new Image()
+    img.onload = () => {
+      if (!cancelled) {
+        setLoaded(true)
+        setError(false)
+      }
+    }
+    img.onerror = () => {
+      if (!cancelled) {
+        setLoaded(false)
         setError(true)
-        setLoading(false)
-      })
+      }
+    }
+    img.src = imageUrl
 
     return () => {
       cancelled = true
     }
-  }, [backgroundImage])
+  }, [imageUrl])
 
-  // 如果没有背景图片或加载失败，只显示默认背景
+  // 没有背景图片或加载失败 → 只显示默认背景
   if (!backgroundImage || error) {
     return (
       <div className={styles.container}>
@@ -65,34 +71,29 @@ export default function BackgroundImage() {
     )
   }
 
-  // 如果正在加载，显示加载状态
-  if (loading) {
+  // 图片尚未加载完成 → 显示默认背景（不显示 loading，避免闪烁）
+  if (!loaded) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>
-          <div className={styles.spinner} />
-        </div>
+        <div className={styles.defaultBackground} />
       </div>
     )
   }
 
-  // 计算背景样式
+  // 图片加载完成 → 叠加显示
   const backgroundStyle: React.CSSProperties = {
-    backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
+    backgroundImage: `url(${imageUrl})`,
     opacity: backgroundImageOpacity / 100,
     filter: backgroundImageBlur > 0 ? `blur(${backgroundImageBlur}px)` : undefined
   }
 
-  // 根据位置模式设置样式
-  const positionClass = styles[`position${backgroundImagePosition.charAt(0).toUpperCase() + backgroundImagePosition.slice(1)}`]
+  const positionClass =
+    styles[`position${backgroundImagePosition.charAt(0).toUpperCase() + backgroundImagePosition.slice(1)}`]
 
   return (
     <div className={styles.container}>
       <div className={styles.defaultBackground} />
-      <div
-        className={`${styles.image} ${positionClass}`}
-        style={backgroundStyle}
-      />
+      <div className={`${styles.image} ${positionClass}`} style={backgroundStyle} />
     </div>
   )
 }
