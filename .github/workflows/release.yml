@@ -73,7 +73,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: macos-installers
-          path: dist/*.dmg
+          path: dist/*.zip
           if-no-files-found: warn
           retention-days: 1
 
@@ -105,10 +105,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-installers
-          path: |
-            dist/*.AppImage
-            dist/*.snap
-            dist/*.deb
+          path: dist/*.AppImage
           if-no-files-found: warn
           retention-days: 1
 
@@ -150,8 +147,8 @@ jobs:
           echo "| 平台 | 文件 |" >> changelog.md
           echo "|------|------|" >> changelog.md
           echo "| Windows | \`LeafMark-*-setup.exe\` |" >> changelog.md
-          echo "| macOS | \`LeafMark-*.dmg\` |" >> changelog.md
-          echo "| Linux | \`LeafMark-*.AppImage\` / \`.snap\` / \`.deb\` |" >> changelog.md
+          echo "| macOS | \`LeafMark-*.zip\` |" >> changelog.md
+          echo "| Linux | \`LeafMark-*.AppImage\` |" >> changelog.md
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
