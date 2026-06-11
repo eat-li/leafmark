@@ -21,16 +21,12 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
-          cache-dependency-path: leafmark/pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: leafmark
         run: pnpm install --frozen-lockfile
 
       - name: Type check
-        working-directory: leafmark
         run: pnpm typecheck
 
       - name: Lint
-        working-directory: leafmark
         run: pnpm lint
