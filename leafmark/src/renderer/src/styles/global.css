@@ -1,46 +1,46 @@
 /* ===========================
    LeafMark Design System
-   Direction: Amber & Ash
+   Direction: Teal & Slate
    =========================== */
 
 /* KaTeX CSS 已移至 PreviewPanel 中按需动态加载 */
 
 :root {
-  /* — Core Palette — Parchment — */
-  --bg-primary: #f7f5f0;
-  --bg-secondary: #efeee8;
-  --bg-tertiary: #e6e4dc;
-  --bg-hover: #deddd5;
-  --bg-surface: #faf9f6;
+  /* — Core Palette — Frost — */
+  --bg-primary: #f0f4f5;
+  --bg-secondary: #e6ecee;
+  --bg-tertiary: #dbe3e6;
+  --bg-hover: #cfd9dd;
+  --bg-surface: #f5f8f9;
 
-  /* — Text Hierarchy — Charcoal — */
-  --text-primary: #2c2a26;
-  --text-secondary: #5e5a52;
-  --text-muted: #8a857b;
-  --text-faint: #b5b0a6;
+  /* — Text Hierarchy — Ink — */
+  --text-primary: #1e2d33;
+  --text-secondary: #4a6069;
+  --text-muted: #7a929c;
+  --text-faint: #a8bcc4;
 
   /* — Borders & Lines — */
-  --border-color: #ddd9cf;
-  --border-light: #e8e6df;
-  --border-strong: #c5c0b5;
+  --border-color: #cdd8dc;
+  --border-light: #dce5e8;
+  --border-strong: #b3c5cb;
 
-  /* — Accent — Amber — */
-  --accent-color: #c07a2a;
-  --accent-hover: #a86a22;
-  --accent-soft: rgba(192, 122, 42, 0.1);
-  --accent-glow: rgba(192, 122, 42, 0.06);
+  /* — Accent — Teal — */
+  --accent-color: #0e8a7a;
+  --accent-hover: #0a7265;
+  --accent-soft: rgba(14, 138, 122, 0.1);
+  --accent-glow: rgba(14, 138, 122, 0.06);
 
   /* — Semantic — */
-  --danger-color: #c44d3e;
-  --danger-soft: rgba(196, 77, 62, 0.08);
-  --success-color: #4a8c5c;
-  --success-soft: rgba(74, 140, 92, 0.08);
-  --info-color: #5a7a9e;
+  --danger-color: #c94545;
+  --danger-soft: rgba(201, 69, 69, 0.08);
+  --success-color: #2e8b57;
+  --success-soft: rgba(46, 139, 87, 0.08);
+  --info-color: #4a7fb5;
 
   /* — Tab System — */
-  --tab-active-bg: #f7f5f0;
-  --tab-inactive-bg: #efeee8;
-  --tab-hover-bg: #f2f0ea;
+  --tab-active-bg: #f0f4f5;
+  --tab-inactive-bg: #e6ecee;
+  --tab-hover-bg: #eaeff1;
 
   /* — Layout Rhythm — */
   --sidebar-width: 260px;
@@ -49,11 +49,11 @@
   --statusbar-height: 28px;
   --toolbar-height: 40px;
 
-  /* — Shadows — Warm Brown-Black — */
-  --shadow-xs: 0 1px 2px rgba(40, 30, 15, 0.05);
-  --shadow-sm: 0 1px 4px rgba(40, 30, 15, 0.06), 0 1px 2px rgba(40, 30, 15, 0.04);
-  --shadow-md: 0 4px 12px rgba(40, 30, 15, 0.08), 0 2px 4px rgba(40, 30, 15, 0.04);
-  --shadow-lg: 0 8px 24px rgba(40, 30, 15, 0.1), 0 4px 8px rgba(40, 30, 15, 0.06);
+  /* — Shadows — Cool Blue-Black — */
+  --shadow-xs: 0 1px 2px rgba(15, 30, 40, 0.06);
+  --shadow-sm: 0 1px 4px rgba(15, 30, 40, 0.07), 0 1px 2px rgba(15, 30, 40, 0.04);
+  --shadow-md: 0 4px 12px rgba(15, 30, 40, 0.09), 0 2px 4px rgba(15, 30, 40, 0.04);
+  --shadow-lg: 0 8px 24px rgba(15, 30, 40, 0.12), 0 4px 8px rgba(15, 30, 40, 0.06);
   --shadow-glow: 0 0 0 3px var(--accent-soft);
 
   /* — Radii — */
@@ -75,41 +75,41 @@
   --duration-slow: 0.35s;
 }
 
-/* — Dark Theme — Midnight Sepia — */
+/* — Dark Theme — Deep Ocean — */
 [data-theme='dark'] {
-  --bg-primary: #191816;
-  --bg-secondary: #1f1e1b;
-  --bg-tertiary: #282622;
-  --bg-hover: #302e29;
-  --bg-surface: #1d1c19;
+  --bg-primary: #141c20;
+  --bg-secondary: #1a2429;
+  --bg-tertiary: #223038;
+  --bg-hover: #2a3a43;
+  --bg-surface: #172024;
 
-  --text-primary: #e8e4db;
-  --text-secondary: #a8a298;
-  --text-muted: #6e6a62;
-  --text-faint: #4a4740;
+  --text-primary: #dde4e7;
+  --text-secondary: #96a8b0;
+  --text-muted: #5e7279;
+  --text-faint: #3d5057;
 
-  --border-color: #302e29;
-  --border-light: #282622;
-  --border-strong: #3d3a34;
+  --border-color: #2a3a43;
+  --border-light: #223038;
+  --border-strong: #3a4d56;
 
-  --accent-color: #d9923a;
-  --accent-hover: #e5a44e;
-  --accent-soft: rgba(217, 146, 58, 0.12);
-  --accent-glow: rgba(217, 146, 58, 0.06);
+  --accent-color: #2dd4bf;
+  --accent-hover: #5de8d4;
+  --accent-soft: rgba(45, 212, 191, 0.12);
+  --accent-glow: rgba(45, 212, 191, 0.06);
 
-  --danger-color: #e06456;
-  --danger-soft: rgba(224, 100, 86, 0.12);
-  --success-color: #5ebe74;
-  --success-soft: rgba(94, 190, 116, 0.1);
+  --danger-color: #ef6b6b;
+  --danger-soft: rgba(239, 107, 107, 0.12);
+  --success-color: #5ed494;
+  --success-soft: rgba(94, 212, 148, 0.1);
 
-  --tab-active-bg: #191816;
-  --tab-inactive-bg: #1f1e1b;
-  --tab-hover-bg: #282622;
+  --tab-active-bg: #141c20;
+  --tab-inactive-bg: #1a2429;
+  --tab-hover-bg: #223038;
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.35);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.55), 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
 /* KaTeX 深色主题覆盖 */
@@ -446,7 +446,7 @@ button:focus-visible {
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(40, 30, 15, 0.3);
+  background: rgba(15, 30, 40, 0.3);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   display: flex;
@@ -491,7 +491,7 @@ button:focus-visible {
 .dialog-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(40, 30, 15, 0.3);
+  background: rgba(15, 30, 40, 0.3);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   display: flex;

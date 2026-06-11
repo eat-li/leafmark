@@ -13,12 +13,12 @@ import { clipboard } from '../../api/electron'
 import ImagePreview from '../ImagePreview/ImagePreview'
 import styles from './EditorPanel.module.css'
 
-// 自定义浅色主题 — Amber & Ash
+// 自定义浅色主题 — Teal & Slate
 const leafmarkLightTheme = EditorView.theme({
   '&': {
     height: '100%',
-    color: '#2c2a26',
-    backgroundColor: '#f7f5f0'
+    color: '#1e2d33',
+    backgroundColor: '#f0f4f5'
   },
   '.cm-scroller': {
     overflow: 'auto',
@@ -27,150 +27,150 @@ const leafmarkLightTheme = EditorView.theme({
   },
   '.cm-content': {
     padding: '16px 0',
-    caretColor: '#c07a2a'
+    caretColor: '#0e8a7a'
   },
   '.cm-line': {
     padding: '0 20px'
   },
   '.cm-cursor, .cm-dropCursor': {
-    borderLeftColor: '#c07a2a',
+    borderLeftColor: '#0e8a7a',
     borderLeftWidth: '2px'
   },
   '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': {
-    backgroundColor: 'rgba(192, 122, 42, 0.12) !important'
+    backgroundColor: 'rgba(14, 138, 122, 0.12) !important'
   },
   '.cm-activeLine': {
-    backgroundColor: 'rgba(192, 122, 42, 0.04)'
+    backgroundColor: 'rgba(14, 138, 122, 0.04)'
   },
   '.cm-gutters': {
-    backgroundColor: '#efeee8',
-    color: '#8a857b',
+    backgroundColor: '#e6ecee',
+    color: '#7a929c',
     border: 'none'
   },
   '.cm-activeLineGutter': {
     backgroundColor: 'transparent',
-    color: '#c07a2a'
+    color: '#0e8a7a'
   },
   '.cm-foldPlaceholder': {
-    backgroundColor: '#e6e4dc',
+    backgroundColor: '#dbe3e6',
     border: 'none',
-    color: '#5e5a52'
+    color: '#4a6069'
   },
   '.cm-tooltip': {
-    backgroundColor: '#faf9f6',
-    border: '1px solid #ddd9cf',
+    backgroundColor: '#f5f8f9',
+    border: '1px solid #cdd8dc',
     borderRadius: '6px',
-    boxShadow: '0 4px 12px rgba(40, 30, 15, 0.08)'
+    boxShadow: '0 4px 12px rgba(15, 30, 40, 0.09)'
   },
   '.cm-tooltip-autocomplete ul li': {
     padding: '4px 8px'
   },
   '.cm-tooltip-autocomplete ul li[aria-selected]': {
-    backgroundColor: 'rgba(192, 122, 42, 0.1)',
-    color: '#2c2a26'
+    backgroundColor: 'rgba(14, 138, 122, 0.1)',
+    color: '#1e2d33'
   },
   '.cm-searchMatch': {
-    backgroundColor: 'rgba(192, 122, 42, 0.2)',
-    outline: '1px solid rgba(192, 122, 42, 0.35)'
+    backgroundColor: 'rgba(14, 138, 122, 0.2)',
+    outline: '1px solid rgba(14, 138, 122, 0.35)'
   },
   '.cm-searchMatch.cm-searchMatch-selected': {
-    backgroundColor: 'rgba(192, 122, 42, 0.35)'
+    backgroundColor: 'rgba(14, 138, 122, 0.35)'
   },
-  // 查找替换面板样式 — Amber & Ash
+  // 查找替换面板样式 — Teal & Slate
   '.cm-panel': {
-    backgroundColor: '#faf9f6',
-    borderTop: '1px solid #ddd9cf'
+    backgroundColor: '#f5f8f9',
+    borderTop: '1px solid #cdd8dc'
   },
   '.cm-panel input[type=text], .cm-panel input[type=search]': {
-    backgroundColor: '#f7f5f0',
-    border: '1px solid #ddd9cf',
+    backgroundColor: '#f0f4f5',
+    border: '1px solid #cdd8dc',
     borderRadius: '4px',
-    color: '#2c2a26',
+    color: '#1e2d33',
     fontSize: '13px'
   },
   '.cm-panel input:focus': {
     outline: 'none',
-    borderColor: '#c07a2a',
-    boxShadow: '0 0 0 2px rgba(192, 122, 42, 0.15)'
+    borderColor: '#0e8a7a',
+    boxShadow: '0 0 0 2px rgba(14, 138, 122, 0.15)'
   },
   '.cm-panel label': {
-    color: '#5e5a52',
+    color: '#4a6069',
     fontSize: '12px'
   },
   '.cm-panel button': {
-    backgroundColor: '#efeee8',
-    color: '#5e5a52',
-    border: '1px solid #ddd9cf',
+    backgroundColor: '#e6ecee',
+    color: '#4a6069',
+    border: '1px solid #cdd8dc',
     borderRadius: '4px',
     cursor: 'pointer'
   },
   '.cm-panel button:hover': {
-    backgroundColor: '#e6e4dc'
+    backgroundColor: '#dbe3e6'
   },
   '.cm-panel .cm-button-active': {
-    backgroundColor: '#c07a2a',
+    backgroundColor: '#0e8a7a',
     color: '#fff',
-    borderColor: '#c07a2a'
+    borderColor: '#0e8a7a'
   },
   '.cm-searchResultsCount': {
-    color: '#8a857b',
+    color: '#7a929c',
     fontSize: '12px'
   }
 })
 
-// Amber & Ash — 浅色语法高亮
+// Teal & Slate — 浅色语法高亮
 const leafmarkLightHighlight = HighlightStyle.define([
-  { tag: tags.heading, color: '#2c2a26', fontWeight: '700' },
-  { tag: tags.heading1, fontSize: '1.4em', color: '#c07a2a' },
-  { tag: tags.heading2, fontSize: '1.2em', color: '#a86a22' },
+  { tag: tags.heading, color: '#1e2d33', fontWeight: '700' },
+  { tag: tags.heading1, fontSize: '1.4em', color: '#0e8a7a' },
+  { tag: tags.heading2, fontSize: '1.2em', color: '#0a7265' },
   { tag: tags.heading3, fontSize: '1.05em' },
-  { tag: tags.strong, fontWeight: '700', color: '#2c2a26' },
-  { tag: tags.emphasis, fontStyle: 'italic', color: '#5e5a52' },
-  { tag: tags.strikethrough, textDecoration: 'line-through', color: '#8a857b' },
-  { tag: tags.link, color: '#c07a2a', textDecoration: 'underline' },
-  { tag: tags.url, color: '#5e5a52' },
-  { tag: tags.atom, color: '#c07a2a' },
-  { tag: tags.bool, color: '#c07a2a' },
-  { tag: tags.labelName, color: '#5e5a52' },
-  { tag: tags.string, color: '#4a8c5c' },
-  { tag: tags.special(tags.string), color: '#4a8c5c' },
-  { tag: tags.regexp, color: '#a85a3a' },
-  { tag: tags.quote, color: '#5e5a52', fontStyle: 'italic' },
-  { tag: tags.comment, color: '#8a857b', fontStyle: 'italic' },
-  { tag: tags.meta, color: '#8a857b' },
-  { tag: tags.variableName, color: '#2c2a26' },
-  { tag: tags.local(tags.variableName), color: '#2c2a26' },
-  { tag: tags.definition(tags.variableName), color: '#c07a2a' },
-  { tag: tags.function(tags.variableName), color: '#c07a2a' },
-  { tag: tags.typeName, color: '#c07a2a' },
-  { tag: tags.namespace, color: '#5a7a9e' },
-  { tag: tags.className, color: '#c07a2a' },
-  { tag: tags.macroName, color: '#c07a2a' },
-  { tag: tags.propertyName, color: '#5a7a9e' },
-  { tag: tags.operator, color: '#c07a2a' },
-  { tag: tags.compareOperator, color: '#c07a2a' },
-  { tag: tags.arithmeticOperator, color: '#c07a2a' },
-  { tag: tags.logicOperator, color: '#c07a2a' },
-  { tag: tags.updateOperator, color: '#c07a2a' },
-  { tag: tags.punctuation, color: '#8a857b' },
-  { tag: tags.paren, color: '#5e5a52' },
-  { tag: tags.squareBracket, color: '#5e5a52' },
-  { tag: tags.brace, color: '#5e5a52' },
-  { tag: tags.number, color: '#c07a2a' },
-  { tag: tags.keyword, color: '#a85a3a' },
-  { tag: tags.operatorKeyword, color: '#a85a3a' },
-  { tag: tags.escape, color: '#c07a2a' },
-  { tag: tags.processingInstruction, color: '#8a857b' },
-  { tag: tags.inserted, color: '#4a8c5c' },
-  { tag: tags.deleted, color: '#c44d3e' },
-  { tag: tags.changed, color: '#c07a2a' },
-  { tag: tags.invalid, color: '#c44d3e', textDecoration: 'underline' },
-  { tag: tags.content, color: '#2c2a26' },
-  { tag: tags.list, color: '#5e5a52' },
-  { tag: tags.contentSeparator, color: '#ddd9cf' }
+  { tag: tags.strong, fontWeight: '700', color: '#1e2d33' },
+  { tag: tags.emphasis, fontStyle: 'italic', color: '#4a6069' },
+  { tag: tags.strikethrough, textDecoration: 'line-through', color: '#7a929c' },
+  { tag: tags.link, color: '#0e8a7a', textDecoration: 'underline' },
+  { tag: tags.url, color: '#4a6069' },
+  { tag: tags.atom, color: '#0e8a7a' },
+  { tag: tags.bool, color: '#0e8a7a' },
+  { tag: tags.labelName, color: '#4a6069' },
+  { tag: tags.string, color: '#2e8b57' },
+  { tag: tags.special(tags.string), color: '#2e8b57' },
+  { tag: tags.regexp, color: '#b35a2e' },
+  { tag: tags.quote, color: '#4a6069', fontStyle: 'italic' },
+  { tag: tags.comment, color: '#7a929c', fontStyle: 'italic' },
+  { tag: tags.meta, color: '#7a929c' },
+  { tag: tags.variableName, color: '#1e2d33' },
+  { tag: tags.local(tags.variableName), color: '#1e2d33' },
+  { tag: tags.definition(tags.variableName), color: '#0e8a7a' },
+  { tag: tags.function(tags.variableName), color: '#0e8a7a' },
+  { tag: tags.typeName, color: '#0e8a7a' },
+  { tag: tags.namespace, color: '#4a7fb5' },
+  { tag: tags.className, color: '#0e8a7a' },
+  { tag: tags.macroName, color: '#0e8a7a' },
+  { tag: tags.propertyName, color: '#4a7fb5' },
+  { tag: tags.operator, color: '#0e8a7a' },
+  { tag: tags.compareOperator, color: '#0e8a7a' },
+  { tag: tags.arithmeticOperator, color: '#0e8a7a' },
+  { tag: tags.logicOperator, color: '#0e8a7a' },
+  { tag: tags.updateOperator, color: '#0e8a7a' },
+  { tag: tags.punctuation, color: '#7a929c' },
+  { tag: tags.paren, color: '#4a6069' },
+  { tag: tags.squareBracket, color: '#4a6069' },
+  { tag: tags.brace, color: '#4a6069' },
+  { tag: tags.number, color: '#0e8a7a' },
+  { tag: tags.keyword, color: '#b35a2e' },
+  { tag: tags.operatorKeyword, color: '#b35a2e' },
+  { tag: tags.escape, color: '#0e8a7a' },
+  { tag: tags.processingInstruction, color: '#7a929c' },
+  { tag: tags.inserted, color: '#2e8b57' },
+  { tag: tags.deleted, color: '#c94545' },
+  { tag: tags.changed, color: '#0e8a7a' },
+  { tag: tags.invalid, color: '#c94545', textDecoration: 'underline' },
+  { tag: tags.content, color: '#1e2d33' },
+  { tag: tags.list, color: '#4a6069' },
+  { tag: tags.contentSeparator, color: '#cdd8dc' }
 ])
 
-// 深色主题的编辑器微调 — Midnight Sepia
+// 深色主题的编辑器微调 — Deep Ocean
 const leafmarkDarkTheme = EditorView.theme({
   '&': {
     height: '100%'
@@ -187,46 +187,46 @@ const leafmarkDarkTheme = EditorView.theme({
     padding: '0 20px'
   },
   '.cm-activeLine': {
-    backgroundColor: 'rgba(217, 146, 58, 0.06)'
+    backgroundColor: 'rgba(45, 212, 191, 0.06)'
   },
   // 查找替换面板样式 — 深色主题
   '.cm-panel': {
-    backgroundColor: '#1d1c19',
-    borderTop: '1px solid #3a3832'
+    backgroundColor: '#172024',
+    borderTop: '1px solid #3a4d56'
   },
   '.cm-panel input[type=text], .cm-panel input[type=search]': {
-    backgroundColor: '#282622',
-    border: '1px solid #3a3832',
+    backgroundColor: '#223038',
+    border: '1px solid #3a4d56',
     borderRadius: '4px',
-    color: '#e8e4db',
+    color: '#dde4e7',
     fontSize: '13px'
   },
   '.cm-panel input:focus': {
     outline: 'none',
-    borderColor: '#d9923a',
-    boxShadow: '0 0 0 2px rgba(217, 146, 58, 0.15)'
+    borderColor: '#2dd4bf',
+    boxShadow: '0 0 0 2px rgba(45, 212, 191, 0.15)'
   },
   '.cm-panel label': {
-    color: '#a8a298',
+    color: '#96a8b0',
     fontSize: '12px'
   },
   '.cm-panel button': {
-    backgroundColor: '#282622',
-    color: '#a8a298',
-    border: '1px solid #3a3832',
+    backgroundColor: '#223038',
+    color: '#96a8b0',
+    border: '1px solid #3a4d56',
     borderRadius: '4px',
     cursor: 'pointer'
   },
   '.cm-panel button:hover': {
-    backgroundColor: '#302e29'
+    backgroundColor: '#2a3a43'
   },
   '.cm-panel .cm-button-active': {
-    backgroundColor: '#d9923a',
-    color: '#191816',
-    borderColor: '#d9923a'
+    backgroundColor: '#2dd4bf',
+    color: '#141c20',
+    borderColor: '#2dd4bf'
   },
   '.cm-searchResultsCount': {
-    color: '#706b63',
+    color: '#5e7279',
     fontSize: '12px'
   }
 })

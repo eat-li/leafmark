@@ -3,13 +3,13 @@ import { useNoteStore } from '../../store/noteStore'
 import type { DayStats } from '../../store/noteStore'
 import styles from './HeatmapPanel.module.css'
 
-// 5 级色阶（浅→深），匹配 Indigo Ink 主题
+// 5 级色阶（浅→深），匹配 Teal & Slate 主题
 const HEAT_LEVELS = [
   'var(--bg-tertiary)', // 0：无数据
-  'rgba(80, 98, 208, 0.15)', // 1：微量
-  'rgba(80, 98, 208, 0.30)', // 2：少量
-  'rgba(80, 98, 208, 0.50)', // 3：中等
-  'rgba(80, 98, 208, 0.75)' // 4：大量
+  'rgba(14, 138, 122, 0.15)', // 1：微量
+  'rgba(14, 138, 122, 0.30)', // 2：少量
+  'rgba(14, 138, 122, 0.50)', // 3：中等
+  'rgba(14, 138, 122, 0.75)' // 4：大量
 ]
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
