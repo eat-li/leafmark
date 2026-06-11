@@ -188,19 +188,18 @@ export const useNoteStore = create<NoteState>()(
           modified: false,
           fileType
         }
-        set({
-          openTabs: [...openTabs, newTab],
+        set((s) => ({
+          openTabs: [...s.openTabs, newTab],
           activeTabPath: filePath
-        })
+        }))
       },
 
       updateContent: (path, content) => {
-        const { openTabs } = get()
-        set({
-          openTabs: openTabs.map((t) =>
+        set((s) => ({
+          openTabs: s.openTabs.map((t) =>
             t.path === path ? { ...t, content, modified: content !== t.originalContent } : t
           )
-        })
+        }))
       },
 
       saveFile: async (path) => {
@@ -209,11 +208,11 @@ export const useNoteStore = create<NoteState>()(
         const tab = openTabs.find((t) => t.path === targetPath)
         if (!tab) return
         await fs.writeFile(tab.path, tab.content)
-        set({
-          openTabs: openTabs.map((t) =>
+        set((s) => ({
+          openTabs: s.openTabs.map((t) =>
             t.path === tab.path ? { ...t, originalContent: t.content, modified: false } : t
           )
-        })
+        }))
         get().updateWritingStats()
       },
 
@@ -221,9 +220,9 @@ export const useNoteStore = create<NoteState>()(
         const { openTabs } = get()
         const modifiedTabs = openTabs.filter((t) => t.modified)
         await Promise.all(modifiedTabs.map((t) => fs.writeFile(t.path, t.content)))
-        set({
-          openTabs: openTabs.map((t) => ({ ...t, originalContent: t.content, modified: false }))
-        })
+        set((s) => ({
+          openTabs: s.openTabs.map((t) => ({ ...t, originalContent: t.content, modified: false }))
+        }))
         get().updateWritingStats()
       },
 
@@ -324,10 +323,11 @@ export const useNoteStore = create<NoteState>()(
       },
 
       toggleTheme: () => {
-        const { theme } = get()
         const themes: Theme[] = ['light', 'dark', 'system']
-        const idx = themes.indexOf(theme)
-        set({ theme: themes[(idx + 1) % themes.length] })
+        set((s) => {
+          const idx = themes.indexOf(s.theme)
+          return { theme: themes[(idx + 1) % themes.length] }
+        })
       },
 
       setTheme: (theme) => set({ theme }),

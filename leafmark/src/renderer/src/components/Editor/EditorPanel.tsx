@@ -304,6 +304,35 @@ interface EditorPanelProps {
   isSyncing?: React.MutableRefObject<boolean>
 }
 
+// 静态空状态 JSX 提升到模块级，避免每次渲染重建（rendering-hoist-jsx）
+const emptyState = (
+  <div className={styles.empty}>
+    <div className={styles.emptyIcon}>
+      <svg
+        width="48"
+        height="48"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+        <line x1="16" y1="17" x2="8" y2="17" />
+        <line x1="10" y1="9" x2="8" y2="9" />
+      </svg>
+    </div>
+    <div className={styles.emptyTitle}>LeafMark</div>
+    <div className={styles.emptyDesc}>从左侧文件树打开一个文件，或创建新笔记开始</div>
+    <div className={styles.emptyHint}>
+      <span>Ctrl+N</span> 新建 · <span>Ctrl+O</span> 打开
+    </div>
+  </div>
+)
+
 export default function EditorPanel({
   onEditorReady,
   onScroll,
@@ -566,33 +595,7 @@ export default function EditorPanel({
   }, [activeTab?.content])
 
   if (!activeTab) {
-    return (
-      <div className={styles.empty}>
-        <div className={styles.emptyIcon}>
-          <svg
-            width="48"
-            height="48"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <polyline points="14 2 14 8 20 8" />
-            <line x1="16" y1="13" x2="8" y2="13" />
-            <line x1="16" y1="17" x2="8" y2="17" />
-            <line x1="10" y1="9" x2="8" y2="9" />
-          </svg>
-        </div>
-        <div className={styles.emptyTitle}>LeafMark</div>
-        <div className={styles.emptyDesc}>从左侧文件树打开一个文件，或创建新笔记开始</div>
-        <div className={styles.emptyHint}>
-          <span>Ctrl+N</span> 新建 · <span>Ctrl+O</span> 打开
-        </div>
-      </div>
-    )
+    return emptyState
   }
 
   // 图片文件：渲染图片预览组件

@@ -39,6 +39,9 @@ function preloadPreview() {
 }
 
 
+// 静态 JSX 提升：避免每次渲染重新创建（rendering-hoist-jsx）
+const previewFallback = <div className="preview-loading">加载预览...</div>
+
 function App(): React.JSX.Element {
   const sidebarVisible = useNoteStore((s) => s.sidebarVisible)
   const viewMode = useNoteStore((s) => s.viewMode)
@@ -54,7 +57,6 @@ function App(): React.JSX.Element {
   const createNoteFromTemplate = useNoteStore((s) => s.createNoteFromTemplate)
   const openFile = useNoteStore((s) => s.openFile)
   const showHeatmap = useNoteStore((s) => s.showHeatmap)
-  const setShowHeatmap = useNoteStore((s) => s.setShowHeatmap)
 
   // 新建文件弹窗状态
   const [showNewFileDialog, setShowNewFileDialog] = useState(false)
@@ -175,12 +177,12 @@ function App(): React.JSX.Element {
       }
       if (ctrl && e.shiftKey && e.key === 'H') {
         e.preventDefault()
-        setShowHeatmap(!useNoteStore.getState().showHeatmap)
+        useNoteStore.setState((s) => ({ showHeatmap: !s.showHeatmap }))
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [saveFile, saveAllFiles, createNote, openFile, setShowHeatmap])
+  }, [saveFile, saveAllFiles, createNote, openFile])
 
   // 自动保存定时器
   useEffect(() => {
@@ -286,7 +288,7 @@ function App(): React.JSX.Element {
               />
             )}
             {(viewMode === 'preview' || viewMode === 'split') && (
-              <Suspense fallback={<div className="preview-loading">加载预览...</div>}>
+              <Suspense fallback={previewFallback}>
                 <PreviewPanel
                   onScroll={isSplitMode ? handlePreviewScroll : undefined}
                   onRegisterScrollTo={isSplitMode ? handlePreviewRegisterScroll : undefined}

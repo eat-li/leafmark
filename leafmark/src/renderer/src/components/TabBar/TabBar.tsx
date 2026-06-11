@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, useRef, useEffect } from 'react'
+import { useMemo, useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react'
 import { useNoteStore } from '../../store/noteStore'
 import { IconClose } from '../Icons'
 import styles from './TabBar.module.css'
@@ -44,8 +44,8 @@ export default function TabBar() {
     [openTabs]
   )
 
-  // 更新滑动指示器位置
-  useEffect(() => {
+  // 更新滑动指示器位置（useLayoutEffect 避免闪烁）
+  useLayoutEffect(() => {
     const tabsContainer = tabsRef.current
     if (!tabsContainer) return
 
